@@ -1,0 +1,20 @@
+{
+  "data_config": {
+    "directory": ["data"],
+    "edgelist_file": "edgelist.csv",
+    "features_file": "embeddings_086.json",
+    "label_file": "quinary_labels.csv",
+    "label_names": ["gene", "label"],
+    "dummy_features": false
+
+  },
+  "model_config": {
+
+  },
+  "train_config": {
+
+  },
+  "tune_config": {
+
+  }
+}
