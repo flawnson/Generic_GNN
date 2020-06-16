@@ -28,7 +28,8 @@ class GenericDataset(ABC):
 
         edgeframe = pd.read_csv(edgelist_path, header=0, index_col=False)
 
-        edges = nx.readwrite.edgelist.read_edgelist(edgelist_path)
+        # DGL will turn graph into directed graph regardless of networkx object type
+        edges = nx.readwrite.edgelist.read_edgelist(edgelist_path, delimiter=",", create_using=nx.DiGraph)
 
         return edges
 
@@ -86,8 +87,11 @@ class GenericDataset(ABC):
 
     def preprocessing(self):
         # TODO: Logic for turning data objects into library-specific implementations
+        # TODO: Check if node list is getting rearranged during conversion to dgl graph object
         nx_graph = self.intersection()
-        dgl_graph = dgl.DGLGraph().from_networkx(nx_graph)
+        dgl_graph = dgl.DGLGraph()
+        dgl_graph.from_networkx(nx_graph, node_attrs=["x"])
+        dgl_graph.y = nx_graph.nodes("y")
 
         return dgl_graph
 
