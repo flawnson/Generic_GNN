@@ -9,6 +9,8 @@
 
   },
   "model_config": {
+    "names": ["name1, name2, name3, name4"],
+    "sizes": [128, 68, 32]
 
   },
   "train_config": {
