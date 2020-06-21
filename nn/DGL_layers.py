@@ -8,20 +8,14 @@ import torch.nn.functional as F
 
 class GNNLayer(nn.Module):
     # XXX: Reference for self; u: source node, v: destination node, e edges among those nodes
-    def __init__(self, in_size, out_size, activation, weight=True, bias=True, **kwargs):
+    def __init__(self, in_size, out_size, weight=True, bias=True):
         super(GNNLayer, self).__init__()
-        self._activation = activation
         self.linear = nn.Linear(in_size, out_size, bias=bias)
         self.bias: bool = bias
-
         if weight:
             self.weight = nn.Parameter(torch.Tensor(in_size, out_size), requires_grad=True)
         else:
             self.register_parameter('weight', None)
-
-    def func_factory(self):
-        # func = fn.
-        return None
 
     def reset_parameters(self):
         # Obligatory parameter reset method
@@ -29,6 +23,9 @@ class GNNLayer(nn.Module):
 
     def forward(self, graph_obj, feature, weight=True):
         # local_scope needed to ensure that the stored data (in messages) doesn't accumulate
+        # When implementing a layer you have a choice of initializing your own weights and matmul, or using nn.Linear
+        # For performance reasons, DGL's implementation performs operations in order according to input/output size
+        # It should be possible however, to use matmul(features, weights) or nn.Linear(features) anyplace anytime
         with graph_obj.local_scope():
             if self._norm == 'both':
                 degs = graph_obj.out_degrees().to(feature.device).float().clamp(min=1)
@@ -37,18 +34,13 @@ class GNNLayer(nn.Module):
                 norm = torch.reshape(norm, shp)
                 feat = feature * norm
 
-            if weight is not None:
-                if self.weight is not None:
-                    raise AssertionError('External weight is provided while at the same time the'
-                                         ' module has defined its own weight parameter. Please'
-                                         ' create the module with flag weight=False.')
-            else:
-                weight = self.weight
+            # feat = torch.matmul(feat, weight)
+            graph_obj.srcdata['h'] = feat
+            graph_obj.update_all(fn.copy_src(src='h', out='m'),
+                                 fn.sum(msg='m', out='h'))
+            feat = graph_obj.dstdata['h']
 
-            graph_obj.ndata["feature_name"] = feature
-            graph_obj.update_all()
-            h = graph_obj.ndata["h"]
-            if self.activation is not None:
-                h = self._activation(h)
+            if self.bias is not None:
+                feat += self.bias
 
-        return self.linear(h)
+        return self.linear(feat)
