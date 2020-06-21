@@ -23,3 +23,7 @@ if __name__ == "__main__":
 
     dataset = PrimaryLabelset(json_data["data_config"])
 
+    # Models are defined in DGL_model.py. You may build you custom layer with DGL in DGL_layers.py or use an
+    # Off-the-shelf layer from DGL. You many define a list of layer types to use in the json config file, otherwise
+    # you must provide a string with the name of the layer to use for the entire model
+
