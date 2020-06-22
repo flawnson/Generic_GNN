@@ -4,21 +4,21 @@ import torch.nn.functional as F
 from abc import ABC
 from nn.DGL_layers import GNNLayer
 from dgl.nn.pytorch.conv import GraphConv, GATConv, GINConv, SAGEConv, ChebConv, EdgeConv
+from dgl.nn.pytorch.glob import AvgPooling, MaxPooling, SortPooling, GlobalAttentionPooling, Set2Set
 
 
 class GenericGNNModel(torch.nn.Module, ABC):
-    def __init__(self, config: dict, linear_model: torch.nn.Module, sizes, pooling, device):
+    def __init__(self, config, layer_dict, pooling, device):
         """
         :param config: Model config file (Python dictionary from JSON)
         :param linear_model: Either None or Linear model stored as torch Module object (only implemented for GCN model)
-        :param sizes: Dicionary containing layer information including sizes, cacheing, etc.
+        :param layer_dict: Dicionary containing layer information including sizes, cacheing, etc.
         :param pooling: Either None or torch pooling objects used between layers in forward propagation
         :param device: torch device object defined in main.py
         """
         super(GenericGNNModel, self).__init__()
         self.config = config
-        self.linear_model = linear_model
-        self.layers = torch.nn.ModuleList([self.factory(size) for size in sizes])
+        self.layers = torch.nn.ModuleList([self.factory(info) for info in layer_dict])
         self.pool = pooling if pooling else [None] * len(self.layers)
         self.device = device
 
@@ -29,19 +29,22 @@ class GenericGNNModel(torch.nn.Module, ABC):
         sizes_copy.pop("name", None)
         return eval(name)(**sizes_copy)
 
-    def forward(self, x):
+    def forward(self, graph_obj, x):
         z = x
-        for layer in self.layers:
+        for layer, pooling in zip(self.layers, self.pool):
             x = layer(x)
             z = x
+            x = pooling(graph_obj, x) if pooling else x
             x = F.relu(x)
             x = F.dropout(x, p=0.5, training=self.training)
         x = z
         return x
 
 
-class GNNModel(GenericGNNModel):
-    def __init__(self, config, data: torch.tensor, sizes: list, device, pooling: str = None, **kwargs):
+class GNNModel(GenericGNNModel, ABC):
+    # Provide pooling arguments as kwargs (only needed for GlobalAttentionPooling and Set2Set (forward parameters should
+    # be provided in the forward function of the model)
+    def __init__(self, config: dict, data: torch.tensor, sizes: list, device: torch.device, pooling: str = None, **kwargs):
         super(GNNModel, self).__init__(
             config=config,
             layer_dict=[dict(name=GNNLayer.__name__,
@@ -49,7 +52,7 @@ class GNNModel(GenericGNNModel):
                         out_channels=out_size,
                         improved=kwargs["improved"],
                         cached=kwargs["cached"])
-                   for in_size, out_size in zip(sizes, sizes[1:])],
-            pooling=[eval(pooling)(in_channels=size).to(device) for size in sizes[1:]] if pooling else None,
+                        for in_size, out_size in zip(sizes, sizes[1:])],
+            pooling=[eval(pooling)(kwargs).to(device) for size in sizes[1:]] if pooling else None,
             device=device)
         self.data = data
