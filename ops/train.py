@@ -15,7 +15,9 @@ class Trainer:
     @torch.no_grad()
     def train(self) -> torch.tensor:
         self.model.train()
-        loss = self.optim.step()
+        logits = self.model(self.dataset, self.dataset.ndata["x"])
+        loss = self.optim(logits, self.dataset.targets)
+        self.optim.step()
 
         return loss
 
@@ -26,6 +28,7 @@ class Trainer:
 
     def run(self):
         for epoch in self.train_config["epochs"]:
+            print(f"Epoch: {epoch}", "-" * 20)
             loss = self.train()
             score = self.test()
 

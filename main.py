@@ -10,6 +10,7 @@ from nn.DGL_models import GenericGNNModel, GNNModel
 if __name__ == "__main__":
     # TODO: Implement logger to log progress of code execution
     # TODO: Create directory tree and requirements.txt with bash script
+    # TODO: Add documentation and typehints to tested and confirmed code
 
     path = osp.join('data', 'biogrid')
     parser = argparse.ArgumentParser(description="Config file parser")
