@@ -21,13 +21,18 @@ if __name__ == "__main__":
     json_data: dict = json.load(open(args.config))
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    dataset: GenericDataset = None
-    dataset = PrimaryLabelset(json_data["data_config"])
+    # Use if-else to check if requested dataset and model type (from config file) is available
+
+    if True:
+        dataset: GenericDataset = None
+        dataset = PrimaryLabelset(json_data["data_config"])
 
     # Models are defined in DGL_models.py. You may build you custom layer with DGL in DGL_layers.py or use an
     # Off-the-shelf layer from DGL. You many define a list of layer types to use in the json config file, otherwise
     # you must provide a string with the name of the layer to use for the entire model
 
-    model: GenericGNNModel = None
-    model = GNNModel(json["model_config"], dataset, device, pooling=None)
+    if True:
+        model: GenericGNNModel = None
+        model = GNNModel(json_data["model_config"], dataset, device, pooling=None)
 
+    model.run()

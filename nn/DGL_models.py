@@ -49,9 +49,7 @@ class GNNModel(GenericGNNModel, ABC):
             config=config,
             layer_dict=[dict(name=GNNLayer.__name__,
                         in_channels=in_size,
-                        out_channels=out_size,
-                        improved=kwargs["improved"],
-                        cached=kwargs["cached"])
+                        out_channels=out_size)
                         for in_size, out_size in zip(config["layer_sizes"], config["layer_sizes"][1:])],
             pooling=[eval(pooling)(kwargs).to(device) for size in config["layer_sizes"][1:]] if pooling else None,
             device=device)

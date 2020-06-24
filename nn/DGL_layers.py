@@ -9,12 +9,12 @@ import torch.nn.functional as F
 class GNNLayer(nn.Module):
     # XXX: Reference for self; u: source node, v: destination node, e edges among those nodes
     # Generic GNN layer can be modified with DGL's built in tools (currently implemented as GCN)
-    def __init__(self, in_size, out_size, weight=True, bias=True):
+    def __init__(self, in_channels, out_channels, weight=True, bias=True):
         super(GNNLayer, self).__init__()
-        self.linear = nn.Linear(in_size, out_size, bias=bias)
+        self.linear = nn.Linear(in_channels, out_channels, bias=bias)
         self.bias: bool = bias
         if weight:
-            self.weight = nn.Parameter(torch.Tensor(in_size, out_size), requires_grad=True)
+            self.weight = nn.Parameter(torch.Tensor(in_channels, out_channels), requires_grad=True)
         else:
             self.register_parameter('weight', None)
 
