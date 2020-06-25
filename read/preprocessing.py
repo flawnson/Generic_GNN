@@ -2,7 +2,7 @@ import networkx as nx
 import os.path as osp
 import pandas as pd
 import numpy as np
-import torch as tg
+import torch
 import json
 import dgl
 
@@ -69,8 +69,6 @@ class GenericDataset(ABC):
         return {}
 
     def intersection(self):
-        # TODO: Logic for intersecting edges, nodes, features, labels, etc
-
         nx_graph: nx.graph = self.get_edges()
         target_data: dict = self.get_targets()
 
@@ -92,6 +90,9 @@ class GenericDataset(ABC):
         dgl_graph = dgl.DGLGraph()
         dgl_graph.from_networkx(nx_graph, node_attrs=["x"])
         dgl_graph.y = nx_graph.nodes("y")
+
+        dgl_graph.known_mask = np.array(list(dgl_graph.y)) != 0 if self.data_config["semi-supervised"] else torch.ones(
+            dgl_graph.y.shape[0])
 
         return dgl_graph
 

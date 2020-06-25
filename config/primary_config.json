@@ -1,12 +1,17 @@
 {
   "data_config": {
-    "directory": ["data"],
+    "directory": [
+      "data"
+    ],
     "edgelist_file": "edgelist.csv",
     "features_file": "embeddings_086.json",
     "label_file": "quinary_labels.csv",
-    "label_names": ["gene", "label"],
+    "label_names": [
+      "gene",
+      "label"
+    ],
+    "semi-supervised": true,
     "dummy_features": false
-
   },
   "model_config": {
     "names": ["name1, name2, name3, name4"],

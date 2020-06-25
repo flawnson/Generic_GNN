@@ -5,6 +5,7 @@ import json
 
 from read.preprocessing import GenericDataset, PrimaryLabelset
 from nn.DGL_models import GenericGNNModel, GNNModel
+from ops.train import Trainer
 
 
 if __name__ == "__main__":
@@ -36,4 +37,4 @@ if __name__ == "__main__":
         model: GenericGNNModel = None
         model = GNNModel(json_data["model_config"], dataset, device, pooling=None)
 
-    model.run()
+    Trainer(json_data["train_config"], dataset, model, device).run()
