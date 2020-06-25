@@ -16,16 +16,17 @@ class GenericDataset(ABC):
     Modifications can be made to compensate for multiple graph edgelists, node features, etc.
     """
     @abstractmethod
-    def __init__(self, config):
+    def __init__(self, config: dict):
         super(GenericDataset, self).__init__()
         self.data_config = config
         self.dataset = self.preprocessing()
 
-    def get_edges(self):
+    def get_edges(self) -> nx.DiGraph:
         edgelist_path = osp.join(osp.dirname(osp.dirname(__file__)),
                                  osp.join(*self.data_config["directory"]),
                                  self.data_config["edgelist_file"])
 
+        # For PyG
         edgeframe = pd.read_csv(edgelist_path, header=0, index_col=False)
 
         # DGL will turn graph into directed graph regardless of networkx object type
@@ -39,7 +40,7 @@ class GenericDataset(ABC):
         # TODO: Make edge and node features optional (and implement for dummy)
         pass
 
-    def get_node_features(self):
+    def get_node_features(self) -> dict:
         features_dict = json.load(open(osp.join(osp.dirname(osp.dirname(__file__)),
                                                 *self.data_config["directory"],
                                                 self.data_config["features_file"])))
@@ -54,7 +55,7 @@ class GenericDataset(ABC):
 
         return features_dict
 
-    def get_targets(self):
+    def get_targets(self) -> dict:
         node_labels = pd.read_csv(osp.join(osp.dirname(osp.dirname(__file__)),
                                            *self.data_config["directory"],
                                            self.data_config["label_file"]), header=0)
@@ -64,15 +65,15 @@ class GenericDataset(ABC):
         return self.get_labels(target_data)
 
     @abstractmethod
-    def get_labels(self, target_data):
+    def get_labels(self, target_data: list):
         # Must be implemented by subclasses. File reading logic is held in get_targets()
         return {}
 
-    def intersection(self):
+    def intersection(self) -> nx.DiGraph:
         nx_graph: nx.graph = self.get_edges()
         target_data: dict = self.get_targets()
 
-        # Needed to compensate for differences between targetset and edgelist (asign nodes without labels to unknown)
+        # Needed to compensate for differences between target set and edgelist (assign nodes without labels to unknown)
         target_data = {name: 0 if name not in target_data else target_data[name] for name in nx_graph.nodes()}
 
         nx.set_node_attributes(nx_graph, target_data, "y")
@@ -83,7 +84,7 @@ class GenericDataset(ABC):
 
         return nx_graph
 
-    def preprocessing(self):
+    def preprocessing(self) -> dgl.graph:
         # TODO: Logic for turning data objects into library-specific implementations
         # TODO: Check if node list is getting rearranged during conversion to dgl graph object
         nx_graph = self.intersection()
@@ -102,7 +103,7 @@ class PrimaryLabelset(GenericDataset, ABC):
         super(PrimaryLabelset, self).__init__(config=config)
 
     @staticmethod
-    def extract_labels(target_data):
+    def extract_labels(target_data) -> dict:
         # Labels starts from 1, since 0 is reserved for unknown class in the case of semi-supervised learning
         # Can manually create dictionary that maps from data to integer
         # Note that PyG automatically turns ints into onehot

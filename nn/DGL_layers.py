@@ -1,9 +1,7 @@
-import dgl
 import torch
 
 import dgl.function as fn
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class GNNLayer(nn.Module):
