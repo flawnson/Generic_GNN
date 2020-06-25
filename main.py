@@ -5,6 +5,7 @@ import json
 
 from read.preprocessing import GenericDataset, PrimaryLabelset
 from nn.DGL_models import GenericGNNModel, GNNModel
+from utils.holdout import Holdout
 from ops.train import Trainer
 
 
@@ -26,8 +27,9 @@ if __name__ == "__main__":
     # Use if-else to check if requested dataset and model type (from config file) is available
 
     if True:
-        dataset: GenericDataset = None
-        dataset = PrimaryLabelset(json_data["data_config"])
+        dataset = PrimaryLabelset(json_data["data_config"]).dataset
+
+    dataset = Holdout(json_data["data_config"], dataset)
 
     # Models are defined in DGL_models.py. You may build you custom layer with DGL in DGL_layers.py or use an
     # Off-the-shelf layer from DGL. You many define a list of layer types to use in the json config file, otherwise

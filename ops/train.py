@@ -33,8 +33,7 @@ class Trainer:
         return None
 
     def run(self):
-        for epoch in self.train_config["epochs"]:
+        for epoch in range(self.train_config["epochs"]):
             print(f"Epoch: {epoch}", "-" * 20)
             loss = self.train()
             score = self.test()
-

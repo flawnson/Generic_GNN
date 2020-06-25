@@ -32,7 +32,7 @@ class GenericGNNModel(torch.nn.Module, ABC):
     def forward(self, graph_obj, x):
         z = x
         for layer, pooling in zip(self.layers, self.pool):
-            x = layer(x)
+            x = layer(graph_obj, x)
             z = x
             x = pooling(graph_obj, x) if pooling else x
             x = F.relu(x)
