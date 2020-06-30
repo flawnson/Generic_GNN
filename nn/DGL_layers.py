@@ -7,9 +7,10 @@ import torch.nn as nn
 class GNNLayer(nn.Module):
     # XXX: Reference for self; u: source node, v: destination node, e edges among those nodes
     # Generic GNN layer can be modified with DGL's built in tools (currently implemented as GCN)
-    def __init__(self, in_channels, out_channels, weight=True, bias=True):
+    def __init__(self, in_channels, out_channels, norm="both", weight=True, bias=True):
         super(GNNLayer, self).__init__()
         self.linear = nn.Linear(in_channels, out_channels, bias=bias)
+        self.norm = norm
         self.bias: bool = bias
         if weight:
             self.weight = nn.Parameter(torch.Tensor(in_channels, out_channels), requires_grad=True)
@@ -26,7 +27,7 @@ class GNNLayer(nn.Module):
         # For performance reasons, DGL's implementation performs operations in order according to input/output size
         # It should be possible however, to use matmul(features, weights) or nn.Linear(features) anyplace anytime
         with graph_obj.local_scope():
-            if self._norm == 'both':
+            if self.norm == 'both':
                 degs = graph_obj.out_degrees().to(feature.device).float().clamp(min=1)
                 norm = torch.pow(degs, -0.5)
                 shp = norm.shape + (1,) * (feature.dim() - 1)
