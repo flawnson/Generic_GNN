@@ -11,7 +11,15 @@
       "label"
     ],
     "semi-supervised": true,
-    "dummy_features": false
+    "dummy_features": false,
+    "shuffle": true,
+    "split_sizes": [
+      0.5,
+      0.1,
+      0.1,
+      0.2,
+      0.1
+    ]
   },
   "model_config": {
     "names": ["name1, name2, name3, name4"],
