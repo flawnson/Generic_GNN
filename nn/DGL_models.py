@@ -45,12 +45,13 @@ class GNNModel(GenericGNNModel, ABC):
     # Provide pooling arguments as kwargs (only needed for GlobalAttentionPooling and Set2Set (forward parameters should
     # be provided in the forward function of the model)
     def __init__(self, config: dict, data: torch.tensor, device: torch.device, pooling: str = None, **kwargs):
+        self.data = data
+        self.layer_sizes = config["layer_sizes"].insert(0, data.ndata["x"].size(1))
         super(GNNModel, self).__init__(
             config=config,
             layer_dict=[dict(name=GNNLayer.__name__,
-                        in_channels=in_size,
-                        out_channels=out_size)
-                        for in_size, out_size in zip(config["layer_sizes"], config["layer_sizes"][1:])],
-            pooling=[eval(pooling)(kwargs).to(device) for size in config["layer_sizes"][1:]] if pooling else None,
+                             in_channels=in_size,
+                             out_channels=out_size)
+                        for in_size, out_size in zip(self.layer_sizes, self.layer_sizes[1:])],
+            pooling=[eval(pooling)(kwargs).to(device) for size in self.layer_sizes[1:]] if pooling else None,
             device=device)
-        self.data = data

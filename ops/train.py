@@ -3,7 +3,8 @@ import numpy as np
 import torch.nn.functional as F
 
 from read.preprocessing import GenericDataset
-from utils.helper import loss_weights
+from utils.helper import loss_weights, auroc_score
+from sklearn.metrics import f1_score
 from nn.DGL_models import GNNModel
 
 
@@ -16,7 +17,6 @@ class Trainer:
         self.params = model.parameters()
         self.optimizer = torch.optim.Adam(self.params, lr=self.train_config["lr"], weight_decay=self.train_config["wd"])
 
-    @torch.no_grad()
     def train(self) -> torch.tensor:
         self.model.train()
         self.optimizer.zero_grad()
@@ -29,8 +29,26 @@ class Trainer:
 
         return loss
 
+    @torch.no_grad()
     def test(self):
-        self.model.test()
+        self.model.eval()
+        logits = self.model()
+        accs, auroc_scores, f1_scores = [], [], []
+        s_logits = F.softmax(input=logits[:, 1:], dim=1)  # To account for the unknown class
+
+        for mask in [self.dataset.train_mask, self.dataset.test_mask]:
+            agg_mask = np.logical_and(mask, self.dataset.known_mask)  # Combined both masks
+            pred = logits[agg_mask].max(1)[1]
+
+            acc = pred.eq(self.data.y[agg_mask].to(self.device)).sum().item() / agg_mask.sum().item()
+            f1 = f1_score(y_true=self.data.y[agg_mask].to('cpu'), y_pred=pred.to('cpu'), average='macro')
+            auroc = auroc_score(self.dataset, agg_mask, mask, logits, s_logits)
+
+            accs.append(acc)
+            f1_scores.append(f1)
+            auroc_scores.append(auroc)
+
+        return accs, f1_scores, auroc_scores
 
         return None
 
