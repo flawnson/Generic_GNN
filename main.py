@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     if True:
         dataset: GenericDataset = None
-        dataset = PrimaryLabelset(json_data["data_config"]).dataset
+        dataset = PrimaryLabelset(json_data["data_config"]).dataset.to(device)
 
     dataset.splits = Holdout(json_data["data_config"], dataset).split()
 
@@ -38,6 +38,6 @@ if __name__ == "__main__":
 
     if True:
         model: GenericGNNModel = None
-        model = GNNModel(json_data["model_config"], dataset, device, pooling=None)
+        model = GNNModel(json_data["model_config"], dataset, device, pooling=None).to(device)
 
     Trainer(json_data["train_config"], dataset, model, device).run()

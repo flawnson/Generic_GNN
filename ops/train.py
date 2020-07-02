@@ -3,6 +3,7 @@ import numpy as np
 import torch.nn.functional as F
 
 from read.preprocessing import GenericDataset
+from utils.helper import loss_weights
 from nn.DGL_models import GNNModel
 
 
@@ -21,6 +22,7 @@ class Trainer:
         self.optimizer.zero_grad()
         logits = self.model(self.dataset, self.dataset.ndata["x"])
         agg_mask = np.logical_and(self.dataset.train_mask, self.dataset.known_mask)
+        weights = loss_weights(self.dataset, agg_mask, self.device) if self.train_config["weighted_loss"] else None
         loss = F.cross_entropy(logits[agg_mask], self.data.y[agg_mask].long().to(self.device), weight=weights)
         loss.backward(retain_graph=True)
         self.optimizer.step()

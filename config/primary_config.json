@@ -12,6 +12,7 @@
     ],
     "semi-supervised": true,
     "dummy_features": false,
+    "weight_classes": false,
     "shuffle": true,
     "split_sizes": [
       0.7,
