@@ -6,7 +6,7 @@ from itertools import accumulate
 
 
 class Holdout:
-    def __init__(self, data_config, dataset):
+    def __init__(self, data_config, dataset, bool_mask=True):
         super(Holdout, self)
         self.data_config = data_config
         self.dataset = dataset
@@ -27,5 +27,19 @@ class Holdout:
         else:
             indices = np.arange(num_data)
 
-        return [Subset(self.dataset, indices[offset - length:offset]) for offset, length in
-                zip(accumulate(lengths), lengths)]
+        if self.bool_mask:
+            return self.indices_to_mask([Subset(self.dataset, indices[offset - length:offset]) for offset, length in
+                                         zip(accumulate(lengths), lengths)])
+        else:
+            return [Subset(self.dataset, indices[offset - length:offset]) for offset, length in
+                    zip(accumulate(lengths), lengths)]
+
+    def indices_to_mask(self, index_lists):
+        masks = []
+
+        for index_list in index_lists:
+            mask = np.zeros(len(self.dataset), dtype=int)
+            mask[index_list.indices] = 1
+            masks.append(mask)
+
+        return masks
