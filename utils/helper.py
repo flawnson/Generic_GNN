@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from sklearn.metrics import roc_auc_score
 
 
-def loss_weights(dataset, agg_mask, device):
+def loss_weights(dataset, agg_mask: np.ndarray, device: torch.device) -> torch.tensor:
     """These weights are designed to compensate for class imabalance in the dataset (negated effects if class has
     undergone oversampling or undersampling)"""
     imb_wc = torch.bincount(dataset.y[agg_mask], minlength=int(dataset.y.max())).float().clamp(
@@ -15,7 +15,9 @@ def loss_weights(dataset, agg_mask, device):
     return weights.to(device)
 
 
-def auroc_score(dataset, agg_mask, split_mask, logits, s_logits):
+def auroc_score(dataset, agg_mask: np.ndarray, split_mask, logits: torch.tensor, s_logits) -> float:
+    """Logic for calculating roc_auc_score using sklearn (different configurations needed depending on the labelset
+    and task type"""
     if np.unique(dataset.y.numpy()) == 2:
         auroc = roc_auc_score(y_true=dataset.y[agg_mask].to('cpu').numpy(),
                               y_score=np.amax(s_logits[agg_mask].to('cpu').data.numpy(), axis=1),

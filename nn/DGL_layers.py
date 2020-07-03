@@ -1,3 +1,4 @@
+import dgl
 import torch
 
 import dgl.function as fn
@@ -7,7 +8,7 @@ import torch.nn as nn
 class GNNLayer(nn.Module):
     # XXX: Reference for self; u: source node, v: destination node, e edges among those nodes
     # Generic GNN layer can be modified with DGL's built in tools (currently implemented as GCN)
-    def __init__(self, in_channels, out_channels, norm="both", weight=True, bias=True):
+    def __init__(self, in_channels: int, out_channels: int, norm="both", weight=True, bias=True):
         super(GNNLayer, self).__init__()
         self.linear = nn.Linear(in_channels, out_channels, bias=bias)
         self.norm = norm
@@ -21,7 +22,7 @@ class GNNLayer(nn.Module):
         # Obligatory parameter reset method
         pass
 
-    def forward(self, graph_obj, feature, weight=True):
+    def forward(self, graph_obj: dgl.DGLGraph, feature: torch.tensor, weight=True) -> torch.tensor:
         # local_scope needed to ensure that the stored data (in messages) doesn't accumulate
         # When implementing a layer you have a choice of initializing your own weights and matmul, or using nn.Linear
         # For performance reasons, DGL's implementation performs operations in order according to input/output size

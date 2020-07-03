@@ -1,3 +1,4 @@
+import dgl
 import torch
 import torch.nn.functional as F
 
@@ -23,13 +24,13 @@ class GenericGNNModel(torch.nn.Module, ABC):
         self.device = device
 
     @staticmethod
-    def factory(sizes: dict):
+    def factory(sizes: dict) -> eval:
         name = sizes.get("name")
         sizes_copy = sizes.copy()
         sizes_copy.pop("name", None)
         return eval(name)(**sizes_copy)
 
-    def forward(self, graph_obj, x):
+    def forward(self, graph_obj: dgl.DGLGraph, x: torch.tensor) -> torch.tensor:
         z = x
         for layer, pooling in zip(self.layers, self.pool):
             x = layer(graph_obj, x)

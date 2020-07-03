@@ -1,4 +1,5 @@
 {
+  "run_type": "demo",
   "data_config": {
     "directory": [
       "data"

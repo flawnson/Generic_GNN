@@ -111,5 +111,5 @@ class PrimaryLabelset(GenericDataset, ABC):
 
     def get_labels(self, target_data) -> dict:
         # Abstract method defined in GenericDataset
-        # return {name: self.extract_labels(target_data) for name, label in zip(target_data[0], target_data[1])}
-        return [self.extract_labels(target_data)[name] for name, label in zip(target_data[0], target_data[1])]
+        return {name: self.extract_labels(target_data) for name, label in zip(target_data[0], target_data[1])}
+        # return [self.extract_labels(target_data)[name] for name, label in zip(target_data[0], target_data[1])]

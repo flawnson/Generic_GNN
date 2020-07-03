@@ -6,13 +6,13 @@ from itertools import accumulate
 
 
 class Holdout:
-    def __init__(self, data_config, dataset, bool_mask=True):
+    def __init__(self, data_config: dict, dataset, bool_mask=True):
         super(Holdout, self)
         self.data_config = data_config
         self.dataset = dataset
         self.bool_mask = bool_mask
 
-    def split(self):
+    def split(self) -> list:
         frac_list = self.data_config.get("split_sizes", [0.8, 0.1, 0.1])
 
         frac_list = np.asarray(frac_list)
@@ -35,7 +35,7 @@ class Holdout:
             return [Subset(self.dataset, indices[offset - length:offset]) for offset, length in
                     zip(accumulate(lengths), lengths)]
 
-    def indices_to_mask(self, index_lists):
+    def indices_to_mask(self, index_lists: list) -> list:
         masks = []
 
         for index_list in index_lists:
