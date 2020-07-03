@@ -34,3 +34,14 @@ def auroc_score(dataset, agg_mask, split_mask, logits, s_logits):
                               multi_class='ovo')
 
     return auroc
+
+
+def indices_to_mask(dataset, index_lists):
+    masks = []
+
+    for index_list in index_lists:
+        mask = np.zeros(len(dataset), dtype=int)
+        mask[index_list.indices] = 1
+        masks.append(mask)
+
+    return masks

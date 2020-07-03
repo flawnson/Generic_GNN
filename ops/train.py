@@ -50,8 +50,6 @@ class Trainer:
 
         return accs, f1_scores, auroc_scores
 
-        return None
-
     def run(self):
         for epoch in range(self.train_config["epochs"]):
             print(f"Epoch: {epoch}", "-" * 20)
