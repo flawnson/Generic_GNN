@@ -10,6 +10,7 @@ class Holdout:
         super(Holdout, self)
         self.data_config = data_config
         self.dataset = dataset
+        self.bool_mask = bool_mask
 
     def split(self):
         frac_list = self.data_config.get("split_sizes", [0.8, 0.1, 0.1])
