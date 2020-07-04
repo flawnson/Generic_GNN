@@ -1,5 +1,6 @@
 import dgl
 import torch
+import numpy as np
 import torch.nn.functional as F
 
 from abc import ABC
@@ -47,7 +48,7 @@ class GNNModel(GenericGNNModel, ABC):
     # be provided in the forward function of the model)
     def __init__(self, config: dict, data: torch.tensor, device: torch.device, pooling: str = None, **kwargs):
         self.data = data
-        self.layer_sizes = [data.ndata["x"].size(1)] + config["layer_sizes"]
+        self.layer_sizes = [data.ndata["x"].size(1)] + config["layer_sizes"] + [len(np.unique(data.ndata["y"].numpy()))]
         super(GNNModel, self).__init__(
             config=config,
             layer_dict=[dict(name=GNNLayer.__name__,
