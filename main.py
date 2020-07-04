@@ -21,7 +21,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Config file parser")
     parser.add_argument("-c", "--config", help="json config file", type=str)
     args = parser.parse_args()
-    bm = args.benchmarking
 
     json_data: dict = json.load(open(args.config))
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

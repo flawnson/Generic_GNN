@@ -89,11 +89,11 @@ class GenericDataset(ABC):
         # TODO: Check if node list is getting rearranged during conversion to dgl graph object
         nx_graph = self.intersection()
         dgl_graph = dgl.DGLGraph()
-        dgl_graph.from_networkx(nx_graph, node_attrs=["x"])
-        dgl_graph.y = nx_graph.nodes("y")
+        dgl_graph.from_networkx(nx_graph, node_attrs=["x", "y"])
+        # dgl_graph.y = nx_graph.nodes("y")
 
-        dgl_graph.known_mask = np.array(list(dgl_graph.y)) != 0 if self.data_config["semi-supervised"] else torch.ones(
-            dgl_graph.y.shape[0])
+        dgl_graph.known_mask = dgl_graph.ndata["y"].numpy() != 0 if self.data_config["semi-supervised"] else torch.ones(
+            len(dgl_graph.y))
 
         return dgl_graph
 
@@ -107,9 +107,9 @@ class PrimaryLabelset(GenericDataset, ABC):
         # Labels starts from 1, since 0 is reserved for unknown class in the case of semi-supervised learning
         # Can manually create dictionary that maps from data to integer
         # Note that PyG automatically turns ints into onehot
-        return dict(zip(np.unique(target_data[1]), list(range(1, len(np.unique(target_data[1]))))))
+        return dict(zip(np.unique(target_data[1]), list(range(len(np.unique(target_data[1]))))))
 
     def get_labels(self, target_data) -> dict:
         # Abstract method defined in GenericDataset
-        return {name: self.extract_labels(target_data) for name, label in zip(target_data[0], target_data[1])}
-        # return [self.extract_labels(target_data)[name] for name, label in zip(target_data[0], target_data[1])]
+        return {name: self.extract_labels(target_data)[label] for name, label in zip(target_data[0], target_data[1])}
+        # return [self.extract_labels(target_data)[label] for name, label in zip(target_data[0], target_data[1])]
