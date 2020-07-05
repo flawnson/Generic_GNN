@@ -35,12 +35,46 @@ class Holdout:
             return [Subset(self.dataset, indices[offset - length:offset]) for offset, length in
                     zip(accumulate(lengths), lengths)]
 
+    def balanced_split(self):
+        frac_list = np.asarray(self.data_config.get("split_sizes", [0.8, 0.1, 0.1]))
+
+        # Initialize empty boolean arrays
+        booleans = []
+        for frac in frac_list:
+            boolean = np.zeros(len(self.dataset.ndata["y"]), dtype=bool)
+            booleans.append(boolean)
+
+        class_indices = []
+        for class_label in range(len(np.unique(self.dataset.ndata["y"])) + 1):
+            mask = self.dataset.ndata["y"].numpy() == class_label
+            class_indices.append(np.where(mask)[0])
+
+        split_indices = []
+        for frac in frac_list:
+            indices = []
+            leftover = None
+
+            for index_list in class_indices:
+                split_len = int(round(frac * len(index_list)))
+
+                split_idx = np.random.choice(index_list, split_len, replace=False)
+                leftover = np.setdiff1d(index_list, split_indices)
+                indices += split_idx.tolist()
+
+            split_indices.append(indices)
+
+        # Change all False to True at indices
+        for boolean, indices in zip(booleans, split_indices):
+            boolean[indices] = True
+
+        return booleans
+
     def indices_to_mask(self, index_lists: list) -> list:
         masks = []
 
         for index_list in index_lists:
             mask = np.zeros(len(self.dataset), dtype=int)
-            mask[index_list.indices] = 1
+            mask[index_list] = 1
             masks.append(mask)
 
         return masks
