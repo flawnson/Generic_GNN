@@ -1,3 +1,9 @@
+""" There are two types of runs: demo, tuning, and benchmarking. All configurations are defined in the config directory
+    demo: runs the training pipeline once
+    tuning: runs the tuning pipeline the number of times defined in config file
+    benchmarking runs the tuning pipeline multiple times and then runs the training pipeline once, with logs """
+# TODO: Implement logger to log progress of code execution
+# TODO: Create directory tree and requirements.txt with bash script
 import os.path as osp
 import argparse
 import torch
@@ -10,13 +16,6 @@ from ops.train import Trainer
 
 
 if __name__ == "__main__":
-    """There are two types of runs: demo, tuning, and benchmarking. All configurations are defined in the config directory
-    demo: runs the training pipeline once
-    tuning: runs the tuning pipeline the number of times defined in config file
-    benchmarking runs the tuning pipeline multiple times and then runs the training pipeline once, with logs"""
-    # TODO: Implement logger to log progress of code execution
-    # TODO: Create directory tree and requirements.txt with bash script
-
     path = osp.join('data', 'biogrid')
     parser = argparse.ArgumentParser(description="Config file parser")
     parser.add_argument("-c", "--config", help="json config file", type=str)
@@ -26,7 +25,6 @@ if __name__ == "__main__":
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Use if-else to check if requested dataset and model type (from config file) is available
-
     if True:
         dataset: GenericDataset = None
         dataset = PrimaryLabelset(json_data["data_config"]).dataset.to(device)

@@ -1,3 +1,5 @@
+""" This module contains the code used to create Deep Graph Library dataset objects. The code implements an abstract
+    factory design pattern (the only difference between data objects are the labelsets """
 import networkx as nx
 import os.path as osp
 import pandas as pd
@@ -79,7 +81,7 @@ class GenericDataset(ABC):
         nx.set_node_attributes(nx_graph, target_data, "y")
         nx.set_node_attributes(nx_graph, self.get_node_features(), "x")
 
-        # Filter for nodes with embeddings
+        # Filter for nodes with embeddings (inplace operation does not need variable assignment
         [nx_graph.remove_node(n) for (n, d) in nx_graph.copy().nodes(data=True) if "x" not in d]
 
         return nx_graph
