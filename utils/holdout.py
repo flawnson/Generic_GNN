@@ -52,13 +52,12 @@ class Holdout:
         split_indices = []
         for frac in frac_list:
             indices = []
-            leftover = None
 
             for index_list in class_indices:
                 split_len = int(round(frac * len(index_list)))
 
                 split_idx = np.random.choice(index_list, split_len, replace=False)
-                leftover = np.setdiff1d(index_list, split_indices)
+                leftover = np.setdiff1d(index_list, split_idx)
                 indices += split_idx.tolist()
 
             split_indices.append(indices)
@@ -74,7 +73,7 @@ class Holdout:
 
         for index_list in index_lists:
             mask = np.zeros(len(self.dataset), dtype=int)
-            mask[index_list] = 1
+            mask[index_list.indices] = 1
             masks.append(mask)
 
         return masks

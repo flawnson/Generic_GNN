@@ -13,6 +13,17 @@ from nn.DGL_models import GNNModel
 
 class Trainer:
     def __init__(self, train_config: dict, dataset: dgl.DGLGraph, model: GNNModel, device: torch.device):
+        """ Class for training and testing loops
+
+        Args:
+            train_config:
+            dataset:
+            model:
+            device:
+
+        Returns:
+
+        """
         self.train_config = train_config
         self.dataset = dataset
         self.model = model

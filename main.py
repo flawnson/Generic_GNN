@@ -1,7 +1,9 @@
 """ There are two types of runs: demo, tuning, and benchmarking. All configurations are defined in the config directory
     demo: runs the training pipeline once
     tuning: runs the tuning pipeline the number of times defined in config file
-    benchmarking runs the tuning pipeline multiple times and then runs the training pipeline once, with logs """
+    benchmarking runs the tuning pipeline multiple times and then runs the training pipeline once and logs run details
+    Documentation is written Google-style (minus examples) with type annotations as per pep484 for most of this project
+    """
 # TODO: Implement logger to log progress of code execution
 # TODO: Create directory tree and requirements.txt with bash script
 import os.path as osp
