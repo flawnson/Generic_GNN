@@ -87,7 +87,6 @@ class GenericDataset(ABC):
         return nx_graph
 
     def preprocessing(self) -> dgl.graph:
-        # TODO: Logic for turning data objects into library-specific implementations
         # TODO: Check if node list is getting rearranged during conversion to dgl graph object
         nx_graph = self.intersection()
         dgl_graph = dgl.DGLGraph()

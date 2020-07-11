@@ -5,6 +5,9 @@
     Documentation is written Google-style (minus examples) with type annotations as per pep484 for most of this project
     """
 # TODO: Implement logger to log progress of code execution
+# TODO: Implement tuning pipeline and benchmarking pipeline
+# TODO: Implement VAE to generate dataset features
+# TODO: Implement linear model to validate dataset features
 # TODO: Create directory tree and requirements.txt with bash script
 import os.path as osp
 import argparse
@@ -37,6 +40,7 @@ if __name__ == "__main__":
     # Off-the-shelf layer from DGL. You many define a list of layer types to use in the json config file, otherwise
     # you must provide a string with the name of the layer to use for the entire model
 
+    # Use if-else to check if requested model type (from config file) is available
     if True:
         model: GenericGNNModel = None
         model = GNNModel(json_data["model_config"], dataset, device, pooling=None).to(device)
