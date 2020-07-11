@@ -36,6 +36,8 @@ class Holdout:
                     zip(accumulate(lengths), lengths)]
 
     def balanced_split(self):
+        """TODO: Check if split is performing properly"""
+        """TODO: Refactor to clean method"""
         frac_list = np.asarray(self.data_config.get("split_sizes", [0.8, 0.1, 0.1]))
 
         # Initialize empty boolean arrays
@@ -50,17 +52,20 @@ class Holdout:
             class_indices.append(np.where(mask)[0])
 
         split_indices = []
+        mark = 0
         for frac in frac_list:
             indices = []
+            leftover = class_indices[mark]
 
             for index_list in class_indices:
-                split_len = int(round(frac * len(index_list)))
+                split_len = int(round(frac * len(leftover)))
 
-                split_idx = np.random.choice(index_list, split_len, replace=False)
-                leftover = np.setdiff1d(index_list, split_idx)
+                split_idx = np.random.choice(leftover, split_len, replace=False)
+                leftover = np.setdiff1d(leftover, split_idx)
                 indices += split_idx.tolist()
 
             split_indices.append(indices)
+            mark += 1
 
         # Change all False to True at indices
         for boolean, indices in zip(booleans, split_indices):
