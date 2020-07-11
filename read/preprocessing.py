@@ -1,5 +1,6 @@
 """ This module contains the code used to create Deep Graph Library dataset objects. The code implements an abstract
     factory design pattern (the only difference between data objects are the labelsets """
+# TODO: Add adapter (put in utils dir) for csv, json, and txt files
 import networkx as nx
 import os.path as osp
 import pandas as pd
@@ -36,16 +37,10 @@ class GenericDataset(ABC):
 
         return edges
 
-    @staticmethod
-    def get_edge_features():
-        # TODO: Add adapter (put in utils dir) for csv, json, and txt files
-        # TODO: Make edge and node features optional (and implement for dummy)
-        pass
-
-    def get_node_features(self) -> dict:
+    def get_features(self, features_filename) -> dict:
         features_dict = json.load(open(osp.join(osp.dirname(osp.dirname(__file__)),
                                                 *self.data_config["directory"],
-                                                self.data_config["features_file"])))
+                                                features_filename)))
 
         features_dict = {name: embed for name, embed
                          in zip(features_dict["gene"].values(),
@@ -79,7 +74,12 @@ class GenericDataset(ABC):
         target_data = {name: 0 if name not in target_data else target_data[name] for name in nx_graph.nodes()}
 
         nx.set_node_attributes(nx_graph, target_data, "y")
-        nx.set_node_attributes(nx_graph, self.get_node_features(), "x")
+
+        if self.data_config["node_features_file"]:
+            nx.set_node_attributes(nx_graph, self.get_features(self.data_config["node_features_file"]), "x")
+
+        if self.data_config["edge_features_file"]:
+            nx.set_edge_attributes(nx_graph, self.get_features(self.data_config["edge_features_file"]), "z")
 
         # Filter for nodes with embeddings (inplace operation does not need variable assignment
         [nx_graph.remove_node(n) for (n, d) in nx_graph.copy().nodes(data=True) if "x" not in d]
@@ -91,9 +91,10 @@ class GenericDataset(ABC):
         # TODO: Check if node list is getting rearranged during conversion to dgl graph object
         nx_graph = self.intersection()
         dgl_graph = dgl.DGLGraph()
-        dgl_graph.from_networkx(nx_graph, node_attrs=["x", "y"])
-        # dgl_graph.y = nx_graph.nodes("y")
+        dgl_graph.from_networkx(nx_graph, node_attrs=["x", "y"], edge_attrs=["z"])
+        # dgl_graph.y = nx_graph.nodes("y")  # PyG's preferred method of adding attributes to object class
 
+        # Creating known node mask for semi-supervised task
         dgl_graph.known_mask = dgl_graph.ndata["y"].numpy() != 0 if self.data_config["semi-supervised"] else torch.ones(
             len(dgl_graph.y))
 
