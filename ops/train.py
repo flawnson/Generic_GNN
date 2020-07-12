@@ -65,6 +65,11 @@ class Trainer:
 
         return accs, f1_scores, auroc_scores
 
+    def pred(self):
+        # TODO: Implement prediction method and logging
+        self.model.eval()
+        logits = self.model(self.dataset, self.dataset.ndata["x"])
+
     def run(self):
         for epoch in range(self.train_config["epochs"]):
             print(f"Epoch: {epoch}", "-" * 20)
