@@ -30,9 +30,11 @@ if __name__ == "__main__":
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Use if-else to check if requested dataset and model type (from config file) is available
-    if True:
+    if json_data.get("data_config")["category"]:
         dataset: GenericDataset = None
         dataset = PrimaryLabelset(json_data["data_config"]).dataset.to(device)
+    else:
+        print(f"{json_data['model']} is not a model")
 
     dataset.splits = Holdout(json_data["data_config"], dataset, bool_mask=True).balanced_split()
 
@@ -41,8 +43,10 @@ if __name__ == "__main__":
     # you must provide a string with the name of the layer to use for the entire model
 
     # Use if-else to check if requested model type (from config file) is available
-    if True:
+    if json_data.get("model_config")["model"]:
         model: GenericGNNModel = None
         model = GNNModel(json_data["model_config"], dataset, device, pooling=None).to(device)
+    else:
+        print(f"{json_data['model']} is not a model")
 
     Trainer(json_data["train_config"], dataset, model, device).run()

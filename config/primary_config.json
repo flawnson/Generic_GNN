@@ -1,6 +1,7 @@
 {
   "run_type": "demo",
   "data_config": {
+    "category": "primary_labelset",
     "directory": [
       "data"
     ],
@@ -23,6 +24,7 @@
     ]
   },
   "model_config": {
+    "model": "GAT",
     "names": ["name1, name2, name3, name4"],
     "layer_sizes": [128, 68, 32]
 
