@@ -8,6 +8,7 @@
 # TODO: Implement tuning pipeline and benchmarking pipeline
 # TODO: Implement VAE to generate dataset features
 # TODO: Implement linear model to validate dataset features
+# TODO: Implement TensorFlow summarywriter for logging training metrics
 # TODO: Create directory tree and requirements.txt with bash script
 import os.path as osp
 import argparse
