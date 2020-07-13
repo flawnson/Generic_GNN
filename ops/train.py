@@ -16,10 +16,10 @@ class Trainer:
         """ Class for training and testing loops
 
         Args:
-            train_config:
-            dataset:
-            model:
-            device:
+            train_config: The configurations to use for training pipeline
+            dataset: The DGL dataset object
+            model: The DGL model object
+            device: The device to use during training (either "gpu" or "cpu")
 
         Returns:
 

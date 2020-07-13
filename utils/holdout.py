@@ -7,6 +7,17 @@ from itertools import accumulate
 
 class Holdout:
     def __init__(self, data_config: dict, dataset, bool_mask=True):
+        """ Class for sequestering splits for training and validation
+
+        Args:
+            data_config: The configurations to use for splitting the data
+            dataset: The DGL dataset object
+            bool_mask: Whether of not to turn list indices into boolean masks
+
+        Returns:
+            list
+
+        """
         super(Holdout, self)
         self.data_config = data_config
         self.dataset = dataset

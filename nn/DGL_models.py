@@ -11,12 +11,18 @@ from dgl.nn.pytorch.glob import AvgPooling, MaxPooling, SortPooling, GlobalAtten
 
 class GenericGNNModel(torch.nn.Module, ABC):
     def __init__(self, config: dict, layer_dict: list, pooling: torch.nn.functional, device: torch.device):
-        """
-        :param config: Model config file (Python dictionary from JSON)
-        :param linear_model: Either None or Linear model stored as torch Module object (only implemented for GCN model)
-        :param layer_dict: Dicionary containing layer information including sizes, cacheing, etc.
-        :param pooling: Either None or torch pooling objects used between layers in forward propagation
-        :param device: torch device object defined in main.py
+        """ Class for training and testing loops
+
+        Args:
+            config: Model config file (Python dictionary from JSON)
+            linear_model: Either None or Linear model stored as torch Module object (only implemented for GCN model)
+            layer_dict: Dicionary containing layer information including sizes, cacheing, etc.
+            pooling: Either None or torch pooling objects used between layers in forward propagation
+            device: torch device object defined in main.py
+
+        Returns:
+            torch.tensor
+
         """
         super(GenericGNNModel, self).__init__()
         self.config = config

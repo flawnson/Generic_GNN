@@ -6,9 +6,22 @@ import torch.nn as nn
 
 
 class GNNLayer(nn.Module):
-    # XXX: Reference for self; u: source node, v: destination node, e edges among those nodes
-    # Generic GNN layer can be modified with DGL's built in tools (currently implemented as GCN)
     def __init__(self, in_channels: int, out_channels: int, norm="both", weight=True, bias=True):
+        """ Class for training and testing loops
+            Generic GNN layer can be modified with DGL's built in tools (currently implemented as GCN)
+            Reference for self; u: source node, v: destination node, e edges among those nodes
+
+        Args:
+            in_channels: The input size of the layer
+            out_channels: The output size of the layer
+            norm: The type of normalization to use in the layer
+            weight: Whether or not to use weights in layer
+            bias: Whether or not to use biases in layer
+
+        Returns:
+            torch.tensor
+
+        """
         super(GNNLayer, self).__init__()
         self.linear = nn.Linear(in_channels, out_channels, bias=bias)
         self.norm = norm
@@ -37,8 +50,7 @@ class GNNLayer(nn.Module):
 
             # feat = torch.matmul(feat, weight)
             graph_obj.srcdata['h'] = feat
-            graph_obj.update_all(fn.copy_src(src='h', out='m'),
-                                 fn.sum(msg='m', out='h'))
+            graph_obj.update_all(fn.copy_src(src='h', out='m'), fn.sum(msg='m', out='h'))
             feat = graph_obj.dstdata['h']
 
             if self.bias is not None:
