@@ -76,10 +76,16 @@ class GenericDataset(ABC):
         nx.set_node_attributes(nx_graph, target_data, "y")
 
         if self.data_config["node_features_file"]:
-            nx.set_node_attributes(nx_graph, self.get_features(self.data_config["node_features_file"]), "x")
+            nx_graph.node_data = ["x"]
+            nx.set_node_attributes(nx_graph, self.get_features(self.data_config["node_features_file"]), *nx_graph.node_data)
+        else:
+            nx_graph.node_data = None
 
         if self.data_config["edge_features_file"]:
-            nx.set_edge_attributes(nx_graph, self.get_features(self.data_config["edge_features_file"]), "z")
+            nx_graph.edge_data = ["z"]
+            nx.set_edge_attributes(nx_graph, self.get_features(self.data_config["edge_features_file"]), *nx_graph.edge_data)
+        else:
+            nx_graph.edge_data = None
 
         # Filter for nodes with embeddings (inplace operation does not need variable assignment
         [nx_graph.remove_node(n) for (n, d) in nx_graph.copy().nodes(data=True) if "x" not in d]
@@ -90,7 +96,7 @@ class GenericDataset(ABC):
         # TODO: Check if node list is getting rearranged during conversion to dgl graph object
         nx_graph = self.intersection()
         dgl_graph = dgl.DGLGraph()
-        dgl_graph.from_networkx(nx_graph, node_attrs=["x", "y"], edge_attrs=["z"])
+        dgl_graph.from_networkx(nx_graph, node_attrs=nx_graph.node_data + ["y"], edge_attrs=nx_graph.edge_data)
         # dgl_graph.y = nx_graph.nodes("y")  # PyG's preferred method of adding attributes to object class
 
         # Creating known node mask for semi-supervised task
