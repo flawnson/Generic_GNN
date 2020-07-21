@@ -37,7 +37,7 @@ if __name__ == "__main__":
     else:
         print(f"{json_data['model']} is not a model")
 
-    dataset.splits = Holdout(json_data["data_config"], dataset, bool_mask=True).balanced_split()
+    dataset.splits = Holdout(json_data["data_config"], dataset, bool_mask=True).split()
 
     # Models are defined in DGL_models.py. You may build you custom layer with DGL in DGL_layers.py or use an
     # Off-the-shelf layer from DGL. You many define a list of layer types to use in the json config file, otherwise
