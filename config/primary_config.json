@@ -1,5 +1,6 @@
 {
   "run_type": "demo",
+  "cuda": false,
   "data_config": {
                   "category": "primary_labelset",
                   "directory": ["data"],
