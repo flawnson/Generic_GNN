@@ -29,16 +29,14 @@ from ops.train import Trainer
 if __name__ == "__main__":
     path = osp.join('data', 'biogrid')
     parser = argparse.ArgumentParser(description="Config file parser")
-    parser.add_argument("-c", "--config", help="json config file", type=str)
+    parser.add_argument("-c", "--config", help="json config file", type=bool)
+    parser.add_argument("-d", "--device", help="device to use", type=bool)
     args = parser.parse_args()
 
     json_data: dict = json.load(open(args.config))
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = "cuda" if not args.device and torch.cuda.is_available() else "cpu"
     # See https://discuss.pytorch.org/t/what-does-torch-backends-cudnn-benchmark-do/5936
-    if torch.cuda.is_available():
-        torch.backends.cudnn.benchmark = False
-    else:
-        torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.benchmark = True if not args.device and torch.cuda.is_available() else False
 
     # git_hash = subprocess.check_output(["git", "describe", "--always"]).strip().decode()
     # git_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode()
