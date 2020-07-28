@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     json_data: dict = json.load(open(args.config))
     # DGL Overrides torch.tensor.to() and implements it's own to() method for its graph objects
-    device = torch.device("cuda") if not args.device and torch.cuda.is_available() else torch.device("cpu")
+    device = torch.device("cuda" if not args.device and torch.cuda.is_available() else "cpu")
     # See https://discuss.pytorch.org/t/what-does-torch-backends-cudnn-benchmark-do/5936
     # benchmark mode is good whenever your input sizes for your network do not vary
     torch.backends.cudnn.benchmark = True if not args.device and torch.cuda.is_available() else False
