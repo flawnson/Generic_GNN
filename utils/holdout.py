@@ -43,6 +43,7 @@ class Holdout:
             return self.indices_to_mask([Subset(self.dataset, indices[offset - length:offset]) for offset, length in
                                          zip(accumulate(lengths), lengths)])
         else:
+            # https://docs.dgl.ai/en/0.4.x/api/python/data.html?highlight=subset#dgl.data.utils.Subset
             return [Subset(self.dataset, indices[offset - length:offset]) for offset, length in
                     zip(accumulate(lengths), lengths)]
 

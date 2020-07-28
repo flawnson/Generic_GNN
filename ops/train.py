@@ -62,7 +62,7 @@ class Trainer:
             f1_scores.append(f1)
             auroc_scores.append(auroc)
 
-        return accs, f1_scores, auroc_scores
+        return {"acc": accs, "f1": f1_scores, "auc": auroc_scores}
 
     def pred(self):
         # TODO: Implement prediction method and logging
@@ -73,4 +73,9 @@ class Trainer:
         for epoch in range(self.train_config["epochs"]):
             print(f"Epoch: {epoch}", "-" * 20)
             loss = self.train()
-            score = self.test()
+            print(f'Loss: {loss}')
+            scores = self.test()
+            print(f'Train_acc: {round(scores["acc"][0], 3)}, Test_acc: {round(scores["acc"][2], 3)}')
+            print(f'Train_f1: {round(scores["f1"][0], 3)}, Test_f1: {round(scores["f1"][2], 3)}')
+            print(f'Train_roc: {round(scores["auc"][0], 3)}, Test_roc: {round(scores["auc"][2], 3)}')
+
