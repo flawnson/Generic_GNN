@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import os.path as osp
 import torch.optim as optim
 import torch.nn.functional as F
 
@@ -63,9 +64,36 @@ class Tuner:
                 pred = logits[alpha].max(1)[1]
 
                 accs.append(pred.eq(self.dataset.ndata["y"].y[alpha]).sum().item() / alpha.sum().item())
-
                 f1_scores.append(f1_score(y_true=self.dataset.ndata["y"][alpha].to('cpu'),
                                           y_pred=pred.to('cpu'),
                                           average='macro'))
-
                 auroc_scores.append(auroc_score(self.dataset, agg_mask, mask, logits, s_logits))
+
+    def run_tune(self):
+        # tune_log = logger.set_tune_logger("tune_logging", osp.join(osp.dirname(__file__), "tune_info_log.txt"))
+        import multiprocessing
+
+        cpus = int(multiprocessing.cpu_count())
+        gpus = 1 if torch.cuda.device_count() >= 1 else 0
+
+        analysis = tune.run(
+            self.executable,
+            config=self.tuning_config,
+            num_samples=1,
+            local_dir=osp.join(osp.dirname(osp.dirname(__file__)),
+                               "logs",
+                               self.tuning_config["model"] + "_tuning_" + self.tuning_config.get("task") ),
+            resources_per_trial={"cpu": cpus, "gpu": gpus}
+        )
+
+        # tune_log("Best config: {}".format(analysis.get_best_config(metric="train_accuracy")))
+        # tune_log("Best config: {}".format(analysis.get_best_config(metric="test_accuracy")))
+        # tune_log("Best config: {}".format(analysis.get_best_config(metric="val_accuracy")))
+        # tune_log("Best config: {}".format(analysis.get_best_config(metric="loss", mode="min")))
+
+        df = analysis.dataframe()
+        df.to_csv(path_or_buf=osp.join(osp.dirname(osp.dirname(__file__)),
+                                       "logs",
+                                       self.tuning_config.get("task") + "_experiment.csv"))
+
+        return analysis.get_best_config(metric="train_f1_score")  # needs to return config for best model

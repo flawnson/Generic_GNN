@@ -54,13 +54,11 @@ class Trainer:
             agg_mask = np.logical_and(mask, self.dataset.known_mask)  # Combined both masks
             pred = logits[agg_mask].max(1)[1]
 
-            acc = pred.eq(self.dataset.ndata["y"][agg_mask].to(self.device)).sum().item() / agg_mask.sum().item()
-            f1 = f1_score(y_true=self.dataset.ndata["y"][agg_mask].to('cpu'), y_pred=pred.to('cpu'), average='macro')
-            auroc = auroc_score(self.dataset, agg_mask, mask, logits, s_logits)
-
-            accs.append(acc)
-            f1_scores.append(f1)
-            auroc_scores.append(auroc)
+            accs.append(pred.eq(self.dataset.ndata["y"][agg_mask].to(self.device)).sum().item() / agg_mask.sum().item())
+            f1_scores.append(f1_score(y_true=self.dataset.ndata["y"][agg_mask].to('cpu'),
+                                      y_pred=pred.to('cpu'),
+                                      average='macro'))
+            auroc_scores.append(auroc_score(self.dataset, agg_mask, mask, logits, s_logits))
 
         return {"acc": accs, "f1": f1_scores, "auc": auroc_scores}
 
