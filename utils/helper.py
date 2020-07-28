@@ -26,7 +26,7 @@ def auroc_score(dataset, agg_mask: np.ndarray, split_mask, logits: torch.tensor,
                               average=None,
                               multi_class=None)
     else:
-        output_mask = np.isin(list(range(0, dataset.ndata["y"][split_mask].max())),
+        output_mask = np.isin(list(range(dataset.ndata["y"][split_mask].max())),
                               np.unique(dataset.ndata["y"][split_mask].to('cpu').numpy()))
         test = np.apply_along_axis(func1d=lambda arr: arr[output_mask], axis=1,
                                    arr=logits[:, 1:].to('cpu').data.numpy())

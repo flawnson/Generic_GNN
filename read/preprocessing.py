@@ -115,7 +115,7 @@ class PrimaryLabelset(GenericDataset, ABC):
         # Labels starts from 1, since 0 is reserved for unknown class in the case of semi-supervised learning
         # Can manually create dictionary that maps from data to integer
         # Note that PyG automatically turns ints into onehot
-        return dict(zip(np.unique(target_data[1]), list(range(len(np.unique(target_data[1]))))))
+        return dict(zip(np.unique(target_data[1]), list(range(1, len(np.unique(target_data[1])) + 1))))
 
     def get_labels(self, target_data) -> dict:
         # Abstract method defined in GenericDataset
