@@ -48,11 +48,11 @@ if __name__ == "__main__":
     # log.info(f"Git hash: {git_hash}, branch: {git_branch}")
 
     # Use if-else to check if requested dataset and model type (from config file) is available
-    if json_data.get("data_config")["category"]:
+    if json_data.get("dataset") == "primary_labelset":
         dataset: GenericDataset = None
         dataset = PrimaryLabelset(json_data["data_config"]).dataset.to(device)
     else:
-        raise NotImplementedError(f"{json_data['dataset']} is not a dataset") # Add to logger when implemented
+        raise NotImplementedError(f"{json_data['dataset']} is not a dataset")  # Add to logger when implemented
 
     if json_data["run_type"] == "demo":
         # You must use balanced split (auroc doesn't work otherwise)
@@ -63,14 +63,20 @@ if __name__ == "__main__":
         # you must provide a string with the name of the layer to use for the entire model
 
         # Use if-else to check if requested model type (from config file) is available
-        if json_data.get("model_config")["model"]:
+        if json_data.get("train_config")["model_config"]["model"] == "GAT":
             model: GenericGNNModel = None
-            model = GNNModel(json_data["model_config"], dataset, device, pooling=None).to(device)
+            model = GNNModel(json_data.get("train_config")["model_config"], dataset, device, pooling=None).to(device)
         else:
             raise NotImplementedError(f"{json_data['model']} is not a model")  # Add to logger when implemented
 
         Trainer(json_data["train_config"], dataset, model, device).run_train()
     elif json_data["run_type"] == "tune":
+        if json_data.get("train_config")["model_config"]["model"]:
+            model: GenericGNNModel = None
+            model = GNNModel(json_data.get("train_config")["model_config"], dataset, device, pooling=None).to(device)
+        else:
+            raise NotImplementedError(f"{json_data['model']} is not a model")  # Add to logger when implemented
+
         Tuner(json_data["tune_config"], dataset, model, device).run_tune()
     elif json_data["run_type"] == "benchmark":
         Benchmarker(json_data["benchmarking_config"])
