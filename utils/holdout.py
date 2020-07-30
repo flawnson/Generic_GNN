@@ -43,8 +43,51 @@ class Holdout:
             return self.indices_to_mask([Subset(self.dataset, indices[offset - length:offset]) for offset, length in
                                          zip(accumulate(lengths), lengths)])
         else:
+            # https://docs.dgl.ai/en/0.4.x/api/python/data.html?highlight=subset#dgl.data.utils.Subset
             return [Subset(self.dataset, indices[offset - length:offset]) for offset, length in
                     zip(accumulate(lengths), lengths)]
+
+    def temp_split(self):
+        """
+        Temporary method to split dataset until rest of codebase is complete
+        :return: train, test, val for DGL object
+        """
+        frac_list = np.asarray(self.data_config.get("split_sizes", [0.8, 0.1, 0.1]))
+
+        # Initialize empty boolean arrays
+        train_bool = np.zeros(len(self.dataset.ndata["y"]), dtype=bool)
+        test_bool = np.zeros(len(self.dataset.ndata["y"]), dtype=bool)
+        val_bool = np.zeros(len(self.dataset.ndata["y"]), dtype=bool)
+
+        class_indices = []
+
+        for class_label in range(len(np.unique(self.dataset.ndata["y"])) + 1):
+            mask = self.dataset.ndata["y"].numpy() == class_label
+            class_indices.append(np.where(mask)[0])
+
+        train_idx = []
+        test_idx = []
+        val_idx = []
+
+        for index_list in class_indices:
+            train_len: int = int(round(frac_list[0] * len(index_list)))
+            validation_len: int = int(round(frac_list[1] * len(index_list)))
+
+            train_indices = np.random.choice(index_list, train_len, replace=False)
+            leftover = np.setdiff1d(index_list, train_indices)
+            val_indices = np.random.choice(leftover, validation_len, replace=False)
+            test_indices = np.setdiff1d(leftover, val_indices)
+
+            train_idx += train_indices.tolist()
+            test_idx += test_indices.tolist()
+            val_idx += val_indices.tolist()
+
+        # Change all False to True at indices
+        train_bool[train_idx] = True
+        test_bool[test_idx] = True
+        val_bool[val_idx] = True
+
+        return [train_bool, test_bool, val_bool]
 
     def balanced_split(self):
         """TODO: Check if split is performing properly"""
