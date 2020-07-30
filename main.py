@@ -23,7 +23,9 @@ import json
 from read.preprocessing import GenericDataset, PrimaryLabelset
 from nn.DGL_models import GenericGNNModel, GNNModel
 from utils.holdout import Holdout
+from ops.benchmark import Benchmarker
 from ops.train import Trainer
+from ops.tune import Tuner
 
 
 if __name__ == "__main__":
@@ -50,20 +52,27 @@ if __name__ == "__main__":
         dataset: GenericDataset = None
         dataset = PrimaryLabelset(json_data["data_config"]).dataset.to(device)
     else:
-        print(f"{json_data['model']} is not a model")  #Add to logger when implemented
+        raise NotImplementedError(f"{json_data['dataset']} is not a dataset") # Add to logger when implemented
 
-    # You must use balanced split (auroc doesn't work otherwise)
-    dataset.splits = Holdout(json_data["data_config"], dataset, bool_mask=True).balanced_split()
+    if json_data["run_type"] == "demo":
+        # You must use balanced split (auroc doesn't work otherwise)
+        dataset.splits = Holdout(json_data["data_config"], dataset, bool_mask=True).temp_split()
 
-    # Models are defined in DGL_models.py. You may build you custom layer with DGL in DGL_layers.py or use an
-    # Off-the-shelf layer from DGL. You many define a list of layer types to use in the json config file, otherwise
-    # you must provide a string with the name of the layer to use for the entire model
+        # Models are defined in DGL_models.py. You may build you custom layer with DGL in DGL_layers.py or use an
+        # Off-the-shelf layer from DGL. You many define a list of layer types to use in the json config file, otherwise
+        # you must provide a string with the name of the layer to use for the entire model
 
-    # Use if-else to check if requested model type (from config file) is available
-    if json_data.get("model_config")["model"]:
-        model: GenericGNNModel = None
-        model = GNNModel(json_data["model_config"], dataset, device, pooling=None).to(device)
+        # Use if-else to check if requested model type (from config file) is available
+        if json_data.get("model_config")["model"]:
+            model: GenericGNNModel = None
+            model = GNNModel(json_data["model_config"], dataset, device, pooling=None).to(device)
+        else:
+            raise NotImplementedError(f"{json_data['model']} is not a model")  # Add to logger when implemented
+
+        Trainer(json_data["train_config"], dataset, model, device).run_train()
+    elif json_data["run_type"] == "tune":
+        Tuner(json_data["tune_config"], dataset, model, device).run_tune()
+    elif json_data["run_type"] == "benchmark":
+        Benchmarker(json_data["benchmarking_config"])
     else:
-        print(f"{json_data['model']} is not a model")
-
-    Trainer(json_data["train_config"], dataset, model, device).run()
+        raise NotImplementedError(f"{json_data['run_type']} is not a run type")

@@ -67,7 +67,7 @@ class Trainer:
         self.model.eval()
         logits = self.model(self.dataset, self.dataset.ndata["x"])
 
-    def run(self):
+    def run_train(self):
         for epoch in range(self.train_config["epochs"]):
             print(f"Epoch: {epoch}", "-" * 20)
             loss = self.train()

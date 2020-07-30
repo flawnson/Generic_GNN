@@ -76,7 +76,7 @@ class Tuner:
         cpus = int(multiprocessing.cpu_count())
         gpus = 1 if torch.cuda.device_count() >= 1 else 0
 
-        analysis = tune.run(
+        analysis = tune.run_train(
             self.executable,
             config=self.tuning_config,
             num_samples=1,

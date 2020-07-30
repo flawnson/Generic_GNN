@@ -1,8 +1,8 @@
 {
   "run_type": "demo",
+  "dataset": "primary_labelset",
   "cuda": false,
   "data_config": {
-                  "category": "primary_labelset",
                   "directory": ["data"],
                   "edgelist_file": "edgelist.csv",
                   "node_features_file": "embeddings_086.json",
@@ -13,13 +13,13 @@
                   "dummy_features": false,
                   "weight_classes": false,
                   "shuffle": true,
-                  "split_sizes": [0.7, 0.2, 0.1]
-  },
-  "model_config": {
-                   "model": "GAT",
-                   "names": ["name1, name2, name3, name4"],
-                   "layer_sizes": [128, 68, 32]
+                  "split_sizes": [0.7, 0.2, 0.1],
+                  "model_config": {
+                                   "model": "GAT",
+                                   "names": ["name1, name2, name3, name4"],
+                                   "layer_sizes": [128, 68, 32]
 
+                  }
   },
   "train_config": {
                    "epochs": 1000,
@@ -33,5 +33,8 @@
                   "lr": 0.0005,
                   "wd": 5e-5
 
+  },
+  "benchmark_config": {
+                       "something": null
   }
 }
