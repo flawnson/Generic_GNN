@@ -25,7 +25,7 @@ from nn.DGL_models import GenericGNNModel, GNNModel
 from utils.holdout import Holdout
 from ops.benchmark import Benchmarker
 from ops.train import Trainer
-from ops.tune import Tuner
+from ops.tune2 import Tuner
 
 
 if __name__ == "__main__":
@@ -63,21 +63,15 @@ if __name__ == "__main__":
         # you must provide a string with the name of the layer to use for the entire model
 
         # Use if-else to check if requested model type (from config file) is available
+        model: GenericGNNModel = None
         if json_data.get("train_config")["model_config"]["model"] == "GAT":
-            model: GenericGNNModel = None
             model = GNNModel(json_data.get("train_config")["model_config"], dataset, device, pooling=None).to(device)
         else:
             raise NotImplementedError(f"{json_data['model']} is not a model")  # Add to logger when implemented
 
         Trainer(json_data["train_config"], dataset, model, device).run_train()
     elif json_data["run_type"] == "tune":
-        if json_data.get("train_config")["model_config"]["model"]:
-            model: GenericGNNModel = None
-            model = GNNModel(json_data.get("train_config")["model_config"], dataset, device, pooling=None).to(device)
-        else:
-            raise NotImplementedError(f"{json_data['model']} is not a model")  # Add to logger when implemented
-
-        Tuner(json_data["tune_config"], dataset, model, device).run_tune()
+        Tuner(json_data["tune_config"], dataset, device).run_tune()
     elif json_data["run_type"] == "benchmark":
         Benchmarker(json_data["benchmarking_config"])
     else:

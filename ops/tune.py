@@ -76,13 +76,13 @@ class Tuner:
         cpus = int(multiprocessing.cpu_count())
         gpus = 1 if torch.cuda.device_count() >= 1 else 0
 
-        analysis = tune.run_train(
+        analysis = tune.run(
             self.executable,
             config=self.tuning_config,
             num_samples=1,
             local_dir=osp.join(osp.dirname(osp.dirname(__file__)),
                                "logs",
-                               self.tuning_config["model"] + "_tuning_" + self.tuning_config.get("task") ),
+                               self.tuning_config["model"] + "_tuning_"),
             resources_per_trial={"cpu": cpus, "gpu": gpus}
         )
 
