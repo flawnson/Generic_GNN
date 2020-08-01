@@ -2,7 +2,12 @@
 A generic GNN pipeline with DGL.
 ## Description
 Meant for general purpose graph learning tasks, specifically those which require large graphs.
+Screenshots*
+Code Style*
 
-# Organization
+# Getting Started
 ## Directory Tree
 Coming soon.
+## Setup
+
+# Acknowledgements
