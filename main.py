@@ -54,10 +54,10 @@ if __name__ == "__main__":
     else:
         raise NotImplementedError(f"{json_data['dataset']} is not a dataset")  # Add to logger when implemented
 
-    if json_data["run_type"] == "demo":
-        # You must use balanced split (auroc doesn't work otherwise)
-        dataset.splits = Holdout(json_data["data_config"], dataset, bool_mask=True).temp_split()
+    # You must use balanced split (auroc doesn't work otherwise)
+    dataset.splits = Holdout(json_data["data_config"], dataset, bool_mask=True).temp_split()
 
+    if json_data["run_type"] == "demo":
         # Models are defined in DGL_models.py. You may build you custom layer with DGL in DGL_layers.py or use an
         # Off-the-shelf layer from DGL. You many define a list of layer types to use in the json config file, otherwise
         # you must provide a string with the name of the layer to use for the entire model
