@@ -26,7 +26,7 @@ from nn.DGL_models import GenericGNNModel, GNNModel
 from utils.holdout import Holdout
 from ops.benchmark import Benchmarker
 from ops.train import Trainer
-from ops.tune2 import Tuner
+from ops.tune import Tuner
 
 
 if __name__ == "__main__":

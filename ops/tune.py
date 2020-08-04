@@ -1,73 +1,137 @@
-import torch
-import numpy as np
+"""XXX: This file is several versions behind the demo pipeline. Since benchmarking and demo share the same code for data
+        preprocessing, model construction, configuration files, etc. running benchmarking will result in an error"""
+
 import os.path as osp
-import torch.optim as optim
+
+import numpy as np
+import torch
 import torch.nn.functional as F
+from nn.DGL_models import GNNModel
+import tensorflow as tf  # Needed to prevent get_global_worker attribute error
 
 from sklearn.metrics import f1_score
 from utils.helper import auroc_score
-from nn.DGL_models import GNNModel
 
 try:
     from ray import tune
 except ModuleNotFoundError:
-    print("Ray is not available, continuing run without tuning")
+    print("Ray is not available, continuing run without benchmarking")
+
+
+def tune_model(config) -> None:
+    """
+    Tune function to be passed into ray.tune run function
+    :param config: Tuning config dict
+    """
+    # tune.track.init()
+
+    dataset = config.get('dataset')
+
+    if config.get("model_config")["model"] == "GAT":
+        model: GenericGNNModel = GNNModel(config.get("model_config"),
+                                          dataset,
+                                          config.get('device'),
+                                          pooling=None).to(config.get('device'))
+    else:
+        raise NotImplementedError(f"{config.get('model_config')['model']} is not a model")  # Add to logger when implemented
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=config["lr"], weight_decay=config["wd"])
+
+    loss_state, accs_state = 0, 0
+    loss_no_improve, accs_no_improve = 0, 0
+
+    for epoch in range(config.get("epochs")):
+        model.train()
+        optimizer.zero_grad()
+        logits = model(dataset, dataset.ndata["x"])
+        alpha = np.logical_and(config.get('train_mask'), config.get('dataset').known_mask)
+        imb_Wc = torch.bincount(config.get('dataset').ndata["y"][alpha]).float().clamp(min=1e-10, max=1e10) / \
+                 config.get('dataset').ndata["y"][alpha].shape[0]
+        weights = (1 / imb_Wc) / (sum(1 / imb_Wc))
+
+        loss = F.cross_entropy(logits[alpha],
+                               config.get('dataset').ndata["y"][alpha],
+                               weight=weights)
+        _loss = loss.clone().detach().to("cpu").item()
+
+        if config.get("early_stopping_loss"):
+            if _loss > loss_state:
+                loss_no_improve += 1
+
+            if loss_no_improve > config.get("loss_patience"):
+                print(f'Loss failed to decrease for {config["loss_patience"]} iter, early stopping current iter')
+                break
+
+        loss.backward()
+        optimizer.step()
+
+        model.eval()
+        logits = model(dataset, dataset.ndata["x"])
+        accs, auroc_scores, f1_scores = [], [], []
+        s_logits = F.softmax(input=logits[:, 1:], dim=1)
+
+        for mask in dataset.splits:
+            agg_mask = np.logical_and(mask, config["dataset"].known_mask)
+            pred = logits[alpha].max(1)[1]
+
+            accs.append(pred.eq(self.dataset.ndata["y"].y[alpha]).sum().item() / alpha.sum().item())
+            f1_scores.append(f1_score(y_true=self.dataset.ndata["y"][alpha].to('cpu'),
+                                      y_pred=pred.to('cpu'),
+                                      average='macro'))
+            auroc_scores.append(auroc_score(self.dataset, agg_mask, mask, logits, s_logits))
+
+            if epoch == config.get("epochs"):  # Only calc AUROC on final epoch for computational efficiency purposes
+                if config.get("task") == 'binary':
+                    auroc_scores.append(roc_auc_score(y_true=config.get('dataset').ndata["y"][alpha].to('cpu').numpy(),
+                                                      y_score=np.amax(s_logits[alpha].to('cpu').data.numpy(), axis=1),
+                                                      average=None,
+                                                      multi_class=None))
+                else:
+                    output_mask = np.isin(list(range(0, data.ndata["y"][mask].max())), np.unique(data.ndata["y"][mask].to('cpu').numpy()))
+                    m_logits = np.apply_along_axis(func1d=lambda arr: arr[output_mask], axis=1,
+                                                   arr=logits[:, 1:].to('cpu').data.numpy())
+                    s_logits = F.softmax(input=torch.from_numpy(m_logits), dim=1)  # Recalc of s_logits from outer scope
+
+                    auroc_scores.append(roc_auc_score(y_true=data.ndata["y"][alpha].to('cpu').numpy(),
+                                                      y_score=s_logits[alpha],
+                                                      average=config.get('auroc_average'),
+                                                      multi_class=config.get('auroc_versus')))
+
+                    train_auc, test_auc, valid_auc = auroc_scores
+
+        train_acc, test_acc, valid_acc = accs
+        train_f1, test_f1, valid_f1 = f1_scores
+
+        if config.get('early_stopping_accs'):
+            if train_acc > accs_state:
+                accs_no_improve += 1
+
+            if accs_no_improve > config.get("accs_patience"):
+                print(f'Accuracy failed to decrease for {config["accs_patience"]} iter, early stopping current iter')
+                break
 
 
 class Tuner:
-    def __init__(self, tuning_config, dataset, model, device):
-        self.tuning_config = tuning_config
-        self.dataset = dataset
-        self.model = model
-        self.device = device
+    def __init__(self, config, dataset, device) -> dict:
+        """
+        :param dataset: PyG data object
+        :param masks: Holdout validation split masks
+        :param config: Tuning configuration dict
+        :param device: cuda or cpu
+        """
 
-    def executable(self) -> None:
-        tune.track.init()
+        (config["train_mask"], config["test_mask"], config["valid_mask"]) = dataset.splits
+        config["task"] = config.get("task")
+        config["model"] = config.get("model")
+        config["device"] = device
+        config["dataset"] = dataset
+        config["epochs"] = config.get("epochs")
 
-        if self.tuning_config['model'] == "GAT":
-            model = GNNModel(self.tuning_config,
-                             self.dataset,
-                             self.device).to(self.device)
-        else:
-            print(f"{self.tuning_config['model']} is not a model")
+        config["lr"] = tune.sample_from(lambda daft: tune.loguniform(0.00000001, 0.001))
+        config["wd"] = tune.sample_from(lambda daft: tune.loguniform(0.0000001, 0.0001))
+        config["dropout"] = tune.sample_from(lambda daft: tune.loguniform(0.01, 0.70))
 
-        optimizer = optim.Adam(model.parameters(), lr=self.tuning_config["lr"], weight_decay=self.tuning_config["wd"])
-
-        loss_state, accs_state = 0, 0
-        loss_no_improve, accs_no_improve = 0, 0
-
-        for epoch in range(self.tuning_config.get("epochs")):
-            model.train()
-            optimizer.zero_grad()
-            log_data, logits = model()
-            alpha = np.logical_and(self.dataset.splits[0], self.dataset.known_mask)
-            imb_Wc = torch.bincount(self.dataset.ndata["y"][alpha]).float().clamp(min=1e-10, max=1e10) / \
-                     self.dataset.ndata["y"][alpha].shape[0]
-            weights = (1 / imb_Wc) / (sum(1 / imb_Wc))
-
-            loss = F.cross_entropy(logits[alpha],
-                                   self.dataset.ndata["y"][alpha],
-                                   weight=weights)
-            _loss = loss.clone().detach().to("cpu").item()
-            tune.track.log(loss=_loss)
-
-            loss.backward()
-            optimizer.step()
-
-            model.eval()
-            logits = model()
-            accs, auroc_scores, f1_scores = [], [], []
-            s_logits = F.softmax(input=logits[:, 1:], dim=1)
-
-            for mask in self.dataset.splits:
-                agg_mask = np.logical_and(mask, self.dataset.known_mask)
-                pred = logits[alpha].max(1)[1]
-
-                accs.append(pred.eq(self.dataset.ndata["y"].y[alpha]).sum().item() / alpha.sum().item())
-                f1_scores.append(f1_score(y_true=self.dataset.ndata["y"][alpha].to('cpu'),
-                                          y_pred=pred.to('cpu'),
-                                          average='macro'))
-                auroc_scores.append(auroc_score(self.dataset, agg_mask, mask, logits, s_logits))
+        self.tuning_config = config
 
     def run_tune(self):
         # tune_log = logger.set_tune_logger("tune_logging", osp.join(osp.dirname(__file__), "tune_info_log.txt"))
@@ -77,12 +141,12 @@ class Tuner:
         gpus = 1 if torch.cuda.device_count() >= 1 else 0
 
         analysis = tune.run(
-            self.executable,
+            tune_model,
             config=self.tuning_config,
             num_samples=1,
             local_dir=osp.join(osp.dirname(osp.dirname(__file__)),
                                "logs",
-                               self.tuning_config["model"] + "_tuning_"),
+                               self.tuning_config.get("model_config")["model"] + "_tuning"),
             resources_per_trial={"cpu": cpus, "gpu": gpus}
         )
 
