@@ -6,6 +6,7 @@
     """
 # TODO: Implement logger to log progress of code execution
 # TODO: Implement tuning pipeline and benchmarking pipeline
+# TODO: Implement tuning for model and layer sizes
 # TODO: Implement optimizer customization
 # TODO: Implement basic multi-GPU support
 # TODO: Implement model saving and loading
