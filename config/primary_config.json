@@ -27,7 +27,7 @@
                    "pretrained": false,
                    "epochs": 1000,
                    "lr": 0.0005,
-                   "wd": 5e-5,
+                   "wd": 5e-5
   },
   "tune_config": {
                   "logging": true,
