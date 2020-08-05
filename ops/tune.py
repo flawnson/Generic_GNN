@@ -11,6 +11,7 @@ import tensorflow as tf  # Needed to prevent get_global_worker attribute error
 
 from sklearn.metrics import f1_score
 from utils.helper import auroc_score
+from utils.early_stopping import Stop
 
 try:
     from ray import tune
@@ -37,8 +38,7 @@ def tune_model(config) -> None:
 
     optimizer = torch.optim.Adam(model.parameters(), lr=config["lr"], weight_decay=config["wd"])
 
-    loss_state, accs_state = 0, 0
-    loss_no_improve, accs_no_improve = 0, 0
+    early_stopper = Stop(config)  # Early stopping for loss and accuracy
 
     for epoch in range(config.get("epochs")):
         model.train()
@@ -57,6 +57,7 @@ def tune_model(config) -> None:
         if config.get("early_stopping_loss"):
             if _loss > loss_state:
                 loss_no_improve += 1
+                loss_state = _loss
 
             if loss_no_improve > config.get("loss_patience"):
                 print(f'Loss failed to decrease for {config["loss_patience"]} iter, early stopping current iter')
@@ -102,13 +103,8 @@ def tune_model(config) -> None:
         train_acc, test_acc, valid_acc = accs
         train_f1, test_f1, valid_f1 = f1_scores
 
-        if config.get('early_stopping_accs'):
-            if train_acc > accs_state:
-                accs_no_improve += 1
-
-            if accs_no_improve > config.get("accs_patience"):
-                print(f'Accuracy failed to decrease for {config["accs_patience"]} iter, early stopping current iter')
-                break
+        early_stopper.early_stopping(train_acc, "accs")
+        early_stopper.early_stopping(train_acc, "loss")
 
 
 class Tuner:

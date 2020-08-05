@@ -1,21 +1,19 @@
 import numpy as np
 
-from
+from typing import List, Dict
 
 
-class Stop():
-    def __init__(self, metric, names: list[str]):
-        self.metric = metric
-        self.names = names
+class Stop(object):
+    def __init__(self, config: Dict):
+        self.config = config
+        self.states = dict(zip(self.config["early_stop"].keys(), np.zeros(len(self.config["early_stop"].keys()))))
+        self.accumulators = dict(zip(self.config["early_stop"].keys(), np.zeros(len(self.config["early_stop"].keys()))))
 
-    @property
-    def init(self):
-        return dict(zip(self.names, np.zeros(len(self.names))))
+    def early_stopping(self, value, name):
+        if value > self.states[name]:
+            self.accumulators[name] += 1
+            self.states[name] = value
 
-    @init.setter
-    def early_stopper(self, value):
-        if value > loss_state:
-            loss_no_improve += 1
-
-        if loss_no_improve > config.get("loss_patience"):
-            raise AssertionError(f'Loss failed to decrease for {config["loss_patience"]} iter, early stopping current iter')
+        assert self.states[name] > self.config.get("loss_patience"), f'{name} failed to improve for ' \
+                                                                     f'{self.config["patience"]} iter,' \
+                                                                     f'early stopping current iter'
