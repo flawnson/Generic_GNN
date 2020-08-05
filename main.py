@@ -4,8 +4,8 @@
     benchmarking runs the tuning pipeline multiple times and then runs the training pipeline once and logs run details
     Documentation is written Google-style (minus examples) with type annotations as per pep484 for most of this project
     """
-# TODO: Implement logger to log progress of code execution
-# TODO: Implement tuning pipeline and benchmarking pipeline
+
+# TODO: Implement benchmarking pipeline
 # TODO: Implement tuning for model and layer sizes
 # TODO: Implement optimizer customization
 # TODO: Implement basic multi-GPU support

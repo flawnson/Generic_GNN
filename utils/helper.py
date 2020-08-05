@@ -1,4 +1,4 @@
-""" This module contains the code that takes up too much space in the main pipeline, hence have been abstracted and
+""" This module contains miscellaneous code that takes up too much space in the main pipeline, hence have been abstracted and
     moved here for organizational reasons """
 import numpy as np
 import torch

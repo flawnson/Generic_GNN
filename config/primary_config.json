@@ -3,6 +3,7 @@
   "dataset": "primary_labelset",
   "cuda": false,
   "data_config": {
+                  "logging": true,
                   "directory": ["data"],
                   "edgelist_file": "edgelist.csv",
                   "node_features_file": "embeddings_086.json",
@@ -16,18 +17,20 @@
                   "split_sizes": [0.7, 0.2, 0.1]
   },
   "train_config": {
+                   "logging": true,
                    "model_config": {
                                     "model": "GAT",
                                     "names": ["name1, name2, name3, name4"],
                                     "layer_sizes": [128, 68, 32]
                    },
+                   "weighted_loss": true,
+                   "pretrained": false,
                    "epochs": 1000,
                    "lr": 0.0005,
                    "wd": 5e-5,
-                   "weighted_loss": true
   },
   "tune_config": {
-                  "task": "idk",
+                  "logging": true,
                   "model_config": {
                                    "model": "GAT",
                                    "names": ["name1, name2, name3, name4"],

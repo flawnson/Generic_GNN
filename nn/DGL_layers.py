@@ -1,3 +1,6 @@
+"""This file contains the code used to build custom GNN Layers using DGL library, the model is constructed in
+    DGL_models.py"""
+
 import dgl
 import torch
 

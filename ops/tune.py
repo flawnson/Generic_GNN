@@ -1,5 +1,5 @@
-"""XXX: This file is several versions behind the demo pipeline. Since benchmarking and demo share the same code for data
-        preprocessing, model construction, configuration files, etc. running benchmarking will result in an error"""
+"""This file contained the code for the tuning pipeline. Ray tune library is required to run this pipeline,
+    and is only available on Linux and MacOS devices (beta wheels available for Windows)"""
 
 import os.path as osp
 
@@ -82,7 +82,7 @@ def tune_model(config) -> None:
             auroc_scores.append(auroc_score(self.dataset, agg_mask, mask, logits, s_logits))
 
             if epoch == config.get("epochs"):  # Only calc AUROC on final epoch for computational efficiency purposes
-                if config.get("task") == 'binary':
+                if np.unique(dataset.ndata["y"].numpy()) == 2:
                     auroc_scores.append(roc_auc_score(y_true=config.get('dataset').ndata["y"][alpha].to('cpu').numpy(),
                                                       y_score=np.amax(s_logits[alpha].to('cpu').data.numpy(), axis=1),
                                                       average=None,
@@ -117,7 +117,6 @@ class Tuner:
         """
 
         (config["train_mask"], config["test_mask"], config["valid_mask"]) = dataset.splits
-        config["task"] = config.get("task")
         config["model"] = config.get("model")
         config["device"] = device
         config["dataset"] = dataset
@@ -154,6 +153,6 @@ class Tuner:
         df = analysis.dataframe()
         df.to_csv(path_or_buf=osp.join(osp.dirname(osp.dirname(__file__)),
                                        "logs",
-                                       self.tuning_config.get("task") + "_experiment.csv"))
+                                       "x_classification" + "_experiment.csv"))
 
         return analysis.get_best_config(metric="train_f1_score")  # needs to return config for best model

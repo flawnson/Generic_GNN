@@ -1,3 +1,5 @@
+"""This file contains the generic logger code that can be called from within any pipeline to log data about the run"""
+
 import datetime
 import logging
 import errno

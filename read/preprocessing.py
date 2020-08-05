@@ -1,5 +1,6 @@
 """ This module contains the code used to create Deep Graph Library dataset objects. The code implements an abstract
     factory design pattern (the only difference between data objects are the labelsets """
+
 # TODO: Add adapter (put in utils dir) for csv, json, and txt files
 import networkx as nx
 import os.path as osp

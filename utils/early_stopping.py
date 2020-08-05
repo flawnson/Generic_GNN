@@ -1,3 +1,5 @@
+"""This file contains the code used for early stopping regularization for each run type"""
+
 import numpy as np
 
 from typing import List, Dict

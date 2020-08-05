@@ -1,3 +1,5 @@
+"""This file contains rudimentary setup code for the project"""
+
 import setuptools
 
 with open("README.md", "r") as rm:

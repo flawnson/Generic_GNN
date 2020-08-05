@@ -1,6 +1,7 @@
 """ This module contains the code that defined the training loop of the pipeline. The train and test methods are executed
     on a per-epoch basis. Note that DGL accesses graph features and labels differently from PyTorch Geometric (DGL uses
     indexing of the ndata attribute whereas PyG allows access to attributes themselves)"""
+
 import torch.nn.functional as F
 import numpy as np
 import torch
