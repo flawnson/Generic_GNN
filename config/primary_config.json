@@ -18,8 +18,8 @@
   },
   "train_config": {
                    "logging": true,
-                   "save_model": true,
-                   "pretrained": true,
+                   "save_model": "saved_model_name",
+                   "load_model": "saved_model_name",
                    "model_config": {
                                     "model": "GAT",
                                     "names": ["name1, name2, name3, name4"],

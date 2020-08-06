@@ -2,6 +2,7 @@
     moved here for organizational reasons """
 import numpy as np
 import torch
+import os.path as osp
 import torch.nn.functional as F
 
 from sklearn.metrics import roc_auc_score
@@ -38,4 +39,23 @@ def auroc_score(dataset, agg_mask: np.ndarray, split_mask, logits: torch.tensor,
                               multi_class='ovo')
 
     return auroc
+
+
+def save_model(config, epoch, model):
+    if config["save_model"] and epoch == config["epochs"]:
+        torch.save(model.state_dict, osp.join(osp.dirname(__file__), "output", config["save_model"]))
+
+
+def load_model(config, model, device):
+    # When loading a model on a CPU that was trained with a GPU, pass torch.device('cpu')
+    # to the map_location argument in the torch.load() function.
+    # In this case, the storages underlying the tensors are dynamically remapped
+    # to the CPU device using the map_location argument.
+    if config.get("train_config")["pretrained"]:
+        try:
+            return model.load_state_dict(torch.load(osp.join("outputs", config["load_model"]), map_location=device))
+        except:
+            RuntimeError("Pretrained model weights do not seem to fit the described model")
+    else:
+        return model.to(device)
 

@@ -8,7 +8,7 @@ import numpy as np
 import torch
 import dgl
 
-from utils.helper import loss_weights, auroc_score
+from utils.helper import loss_weights, auroc_score, save_model
 from sklearn.metrics import f1_score
 from nn.DGL_models import GNNModel
 
@@ -42,9 +42,7 @@ class Trainer:
         loss = F.cross_entropy(logits[agg_mask], self.dataset.ndata["y"][agg_mask].long().to(self.device), weight=weights)
         loss.backward(retain_graph=True)
         self.optimizer.step()
-
-        if self.train_config["save_model"] and epoch == self.train_config["epochs"]:
-            torch.save(self.model.state_dict, osp.join(osp.dirname(__file__), "output", self.train_config["save_model"]))
+        save_model(self.train_config, epoch, self.model)
 
         return loss
 
