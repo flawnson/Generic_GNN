@@ -51,7 +51,11 @@ C:.
 
 # Getting Started
 ## Setup
-To be set up.
-
+First you'll need to run setup.py
+```python setup.py```
+and install depedencies in the requirements.txt
+```pip install -r requirements.txt```
+Then you'll need to create an empty directory for model outputs (including saved models)
+```cd Generic_GNN && mkdir outputs```
 # Acknowledgements
 To my mentors and my friends whom have taught and inspired me all these years.
