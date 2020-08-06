@@ -1,5 +1,5 @@
 """ There are two types of runs: demo, tuning, and benchmarking. All configurations are defined in the config directory
-    demo: runs the training pipeline once
+    demo: runs the training pipeline once (Includes option to use pre-trained weights)
     tuning: runs the tuning pipeline the number of times defined in config file
     benchmarking runs the tuning pipeline multiple times and then runs the training pipeline once and logs run details
     Documentation is written Google-style (minus examples) with type annotations as per pep484 for most of this project
@@ -7,9 +7,8 @@
 
 # TODO: Implement benchmarking pipeline
 # TODO: Implement tuning for model and layer sizes
-# TODO: Implement optimizer customization
+# TODO: Implement optimizer/loss customization
 # TODO: Implement basic multi-GPU support
-# TODO: Implement model saving and loading
 # TODO: Implement basic unit testing for splits
 # TODO: Implement VAE to generate dataset features
 # TODO: Implement linear model to validate dataset features
@@ -70,10 +69,13 @@ if __name__ == "__main__":
         else:
             raise NotImplementedError(f"{json_data['model']} is not a model")  # Add to logger when implemented
 
+        if json_data.get("train_config")["pretrained"]:
+            model = model.load_state_dict(torch.load(osp.join("output")))
+
         Trainer(json_data["train_config"], dataset, model, device).run_train()
     elif json_data["run_type"] == "tune":
         Tuner(json_data["tune_config"], dataset, device).run_tune()
     elif json_data["run_type"] == "benchmark":
-        Benchmarker(json_data["benchmarking_config"])
+        Benchmarker(json_data, device)
     else:
         raise NotImplementedError(f"{json_data['run_type']} is not a run type")

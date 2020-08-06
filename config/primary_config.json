@@ -1,5 +1,5 @@
 {
-  "run_type": "tune",
+  "run_type": "demo",
   "dataset": "primary_labelset",
   "cuda": false,
   "data_config": {
@@ -18,13 +18,14 @@
   },
   "train_config": {
                    "logging": true,
+                   "save_model": true,
+                   "pretrained": true,
                    "model_config": {
                                     "model": "GAT",
                                     "names": ["name1, name2, name3, name4"],
                                     "layer_sizes": [128, 68, 32]
                    },
                    "weighted_loss": true,
-                   "pretrained": false,
                    "epochs": 1000,
                    "lr": 0.0005,
                    "wd": 5e-5

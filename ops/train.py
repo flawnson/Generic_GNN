@@ -3,6 +3,7 @@
     indexing of the ndata attribute whereas PyG allows access to attributes themselves)"""
 
 import torch.nn.functional as F
+import os.path as osp
 import numpy as np
 import torch
 import dgl
@@ -32,7 +33,7 @@ class Trainer:
         self.params = model.parameters()
         self.optimizer = torch.optim.Adam(self.params, lr=self.train_config["lr"], weight_decay=self.train_config["wd"])
 
-    def train(self) -> torch.tensor:
+    def train(self, epoch) -> torch.tensor:
         self.model.train()
         self.optimizer.zero_grad()
         logits = self.model(self.dataset, self.dataset.ndata["x"])
@@ -41,6 +42,9 @@ class Trainer:
         loss = F.cross_entropy(logits[agg_mask], self.dataset.ndata["y"][agg_mask].long().to(self.device), weight=weights)
         loss.backward(retain_graph=True)
         self.optimizer.step()
+
+        if self.train_config["save_model"] and epoch == self.train_config["epochs"]:
+            torch.save(self.model.state_dict, osp.join(osp.dirname(__file__), "output", self.train_config["save_model"]))
 
         return loss
 
@@ -71,7 +75,7 @@ class Trainer:
     def run_train(self):
         for epoch in range(self.train_config["epochs"]):
             print(f"Epoch: {epoch}", "-" * 20)
-            loss = self.train()
+            loss = self.train(epoch)
             print(f'Loss: {loss}')
             scores = self.test()
             print(f'Train_acc: {round(scores["acc"][0], 3)}, Test_acc: {round(scores["acc"][2], 3)}')
