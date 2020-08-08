@@ -42,12 +42,16 @@ def auroc_score(dataset, agg_mask: np.ndarray, split_mask, logits: torch.tensor,
     return auroc
 
 
-def pretty_print(value):
-    pass
+def pretty_print(scores):
+    # Function to use for printing model scores in training pipeline
+    for score_type, score_set in scores.items():
+        for score_split in score_set:
+            print(f"{score_type + '-' + score_split[0]}: {round(score_split[1], 3)}")
+        print("-" * 10)
 
 
 def save_model(config, epoch, model):
-    if config["save_model"] and epoch == config["epochs"]:
+    if config.get("save_model", False) and epoch == config["epochs"]:
         torch.save(model.state_dict, osp.join(osp.dirname(__file__), "output", config["save_model"]))
 
 
@@ -56,7 +60,7 @@ def load_model(config, model, device):
     # to the map_location argument in the torch.load() function.
     # In this case, the storages underlying the tensors are dynamically remapped
     # to the CPU device using the map_location argument.
-    if config.get("train_config")["load_model"]:
+    if config.get("train_config").get("load_model", None):
         try:
             return model.load_state_dict(torch.load(osp.join("outputs", config["load_model"]), map_location=device))
         except:

@@ -8,7 +8,7 @@ import numpy as np
 import torch
 import dgl
 
-from utils.helper import loss_weights, auroc_score, save_model
+from utils.helper import loss_weights, auroc_score, save_model, pretty_print
 from torch.utils.tensorboard import SummaryWriter
 from sklearn.metrics import f1_score
 from nn.DGL_models import GNNModel
@@ -72,21 +72,20 @@ class Trainer:
         self.model.eval()
         logits = self.model(self.dataset, self.dataset.ndata["x"])
 
-    def write(self, epoch, scores):
+    def write(self, epoch, scores) -> None:
         for score_type, score_set in scores.items():
             for score_split in score_set:
                 self.writer.add_scalar(score_type + score_split[0], score_split[1], epoch)
-
         self.writer.flush()
 
     def run_train(self):
         for epoch in range(self.train_config["epochs"]):
             print(f"Epoch: {epoch}", "-" * 20)
             loss = self.train(epoch)
-            print(f'Loss: {loss}')
+            print(f"Loss: {loss}", "\n", "_" * 10)
             scores = self.test()
+            pretty_print(scores)
             # print(f'Train_acc: {round(scores["acc"][0], 3)}, Test_acc: {round(scores["acc"][2], 3)}')
             # print(f'Train_f1: {round(scores["f1"][0], 3)}, Test_f1: {round(scores["f1"][2], 3)}')
             # print(f'Train_roc: {round(scores["auc"][0], 3)}, Test_roc: {round(scores["auc"][2], 3)}')
-
             self.write(epoch, scores)

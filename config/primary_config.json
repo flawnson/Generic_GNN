@@ -26,6 +26,7 @@
                                     "names": ["name1, name2, name3, name4"],
                                     "layer_sizes": [128, 68, 32]
                    },
+                   "scores": ["score1", "score2"],
                    "weighted_loss": true,
                    "epochs": 1000,
                    "lr": 0.0005,
@@ -37,6 +38,7 @@
                                    "model": "GAT",
                                    "names": ["name1, name2, name3, name4"],
                                    "layer_sizes": [128, 68, 32]},
+                  "scores": ["score1", "score2"],
                   "epochs": 500,
                   "lr": [0.00000001, 0.001],
                   "wd": [0.0000001, 0.0001],
