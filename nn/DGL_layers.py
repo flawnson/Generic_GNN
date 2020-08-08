@@ -57,6 +57,6 @@ class GNNLayer(nn.Module):
             feat = graph_obj.dstdata['h']
 
             if self.bias is not None:
-                feat += self.bias
+                feat = self.bias + feat
 
         return self.linear(feat)

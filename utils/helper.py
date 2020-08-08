@@ -51,7 +51,7 @@ def load_model(config, model, device):
     # to the map_location argument in the torch.load() function.
     # In this case, the storages underlying the tensors are dynamically remapped
     # to the CPU device using the map_location argument.
-    if config.get("train_config")["pretrained"]:
+    if config.get("train_config")["load_model"]:
         try:
             return model.load_state_dict(torch.load(osp.join("outputs", config["load_model"]), map_location=device))
         except:
