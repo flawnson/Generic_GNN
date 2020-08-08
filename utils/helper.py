@@ -6,6 +6,7 @@ import os.path as osp
 import torch.nn.functional as F
 
 from sklearn.metrics import roc_auc_score
+from torch.utils.tensorboard import SummaryWriter
 
 
 def loss_weights(dataset, agg_mask: np.ndarray, device: torch.device) -> torch.tensor:
@@ -39,6 +40,10 @@ def auroc_score(dataset, agg_mask: np.ndarray, split_mask, logits: torch.tensor,
                               multi_class='ovo')
 
     return auroc
+
+
+def pretty_print(value):
+    pass
 
 
 def save_model(config, epoch, model):

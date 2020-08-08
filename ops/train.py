@@ -33,13 +33,13 @@ class Trainer:
         self.device = device
         self.params = model.parameters()
         self.optimizer = torch.optim.Adam(self.params, lr=self.train_config["lr"], weight_decay=self.train_config["wd"])
-        self.writer = lambda log_path='../logs', name=self.train_config["run_name"]: SummaryWriter(log_path + name)
+        self.writer = SummaryWriter("../logs" + self.train_config["run_name"])
 
     def train(self, epoch) -> torch.tensor:
         self.model.train()
         self.optimizer.zero_grad()
         logits = self.model(self.dataset, self.dataset.ndata["x"])
-        agg_mask = np.logical_and(self.dataset.splits[0], self.dataset.known_mask)
+        agg_mask = np.logical_and(self.dataset.splits["trainset"], self.dataset.known_mask)
         weights = loss_weights(self.dataset, agg_mask, self.device) if self.train_config["weighted_loss"] else None
         loss = F.cross_entropy(logits[agg_mask], self.dataset.ndata["y"][agg_mask].long().to(self.device), weight=weights)
         loss.backward(retain_graph=True)
@@ -55,15 +55,15 @@ class Trainer:
         accs, auroc_scores, f1_scores = [], [], []
         s_logits = F.softmax(input=logits[:, 1:], dim=1)  # To account for the unknown class
 
-        for mask in self.dataset.splits:
-            agg_mask = np.logical_and(mask, self.dataset.known_mask)  # Combined both masks
+        for mask in self.dataset.splits.items():
+            agg_mask = np.logical_and(mask[1], self.dataset.known_mask)  # Combined both masks
             pred = logits[agg_mask].max(1)[1]
 
-            accs.append(pred.eq(self.dataset.ndata["y"][agg_mask].to(self.device)).sum().item() / agg_mask.sum().item())
-            f1_scores.append(f1_score(y_true=self.dataset.ndata["y"][agg_mask].to('cpu'),
+            accs.append((mask[0], pred.eq(self.dataset.ndata["y"][agg_mask].to(self.device)).sum().item() / agg_mask.sum().item()))
+            f1_scores.append((mask[0], f1_score(y_true=self.dataset.ndata["y"][agg_mask].to('cpu'),
                                       y_pred=pred.to('cpu'),
-                                      average='macro'))
-            auroc_scores.append(auroc_score(self.dataset, agg_mask, mask, logits, s_logits))
+                                      average='macro')))
+            auroc_scores.append((mask[0], auroc_score(self.dataset, agg_mask, mask[1], logits, s_logits)))
 
         return {"acc": accs, "f1": f1_scores, "auc": auroc_scores}
 
@@ -74,19 +74,19 @@ class Trainer:
 
     def write(self, epoch, scores):
 
-        for score in scores:
-            self.writer.add_scalar
+        for scoretype, scoreset in scores.items():
+            self.writer.add_scalar(scoretype + scoreset[0], scoreset[1], epoch)
 
-        train_acc, test_acc = scores[0]
-        train_f1, test_f1 = scores[1]
-        train_auroc, test_auroc = scores[2]
-
-        self.writer.add_scalar('Accuracy/train', train_acc, epoch)
-        self.writer.add_scalar('Accuracy/test', test_acc, epoch)
-        self.writer.add_scalar('Accuracy/train', train_f1, epoch)
-        self.writer.add_scalar('Accuracy/test', test_f1, epoch)
-        self.writer.add_scalar('Accuracy/train', train_auroc, epoch)
-        self.writer.add_scalar('Accuracy/test', test_auroc, epoch)
+        # train_acc, test_acc = scores[0]
+        # train_f1, test_f1 = scores[1]
+        # train_auroc, test_auroc = scores[2]
+        #
+        # self.writer.add_scalar('Accuracy/train', train_acc, epoch)
+        # self.writer.add_scalar('Accuracy/test', test_acc, epoch)
+        # self.writer.add_scalar('Accuracy/train', train_f1, epoch)
+        # self.writer.add_scalar('Accuracy/test', test_f1, epoch)
+        # self.writer.add_scalar('Accuracy/train', train_auroc, epoch)
+        # self.writer.add_scalar('Accuracy/test', test_auroc, epoch)
         self.writer.flush()
 
     def run_train(self):
@@ -95,8 +95,8 @@ class Trainer:
             loss = self.train(epoch)
             print(f'Loss: {loss}')
             scores = self.test()
-            print(f'Train_acc: {round(scores["acc"][0], 3)}, Test_acc: {round(scores["acc"][2], 3)}')
-            print(f'Train_f1: {round(scores["f1"][0], 3)}, Test_f1: {round(scores["f1"][2], 3)}')
-            print(f'Train_roc: {round(scores["auc"][0], 3)}, Test_roc: {round(scores["auc"][2], 3)}')
+            # print(f'Train_acc: {round(scores["acc"][0], 3)}, Test_acc: {round(scores["acc"][2], 3)}')
+            # print(f'Train_f1: {round(scores["f1"][0], 3)}, Test_f1: {round(scores["f1"][2], 3)}')
+            # print(f'Train_roc: {round(scores["auc"][0], 3)}, Test_roc: {round(scores["auc"][2], 3)}')
 
-            self.write(scores)
+            self.write(epoch, scores)

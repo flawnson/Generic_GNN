@@ -116,7 +116,7 @@ class Tuner:
         :param device: cuda or cpu
         """
 
-        (config["train_mask"], config["test_mask"], config["valid_mask"]) = dataset.splits
+        (config["train_mask"], config["test_mask"], config["valid_mask"]) = dataset.splits.values()
         config["model"] = config.get("model")
         config["device"] = device
         config["dataset"] = dataset

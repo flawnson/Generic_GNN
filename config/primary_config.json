@@ -3,7 +3,6 @@
   "dataset": "primary_labelset",
   "cuda": false,
   "data_config": {
-                  "run_name": "arbitrary_run_name",
                   "logging": true,
                   "directory": ["data"],
                   "edgelist_file": "edgelist.csv",
@@ -18,6 +17,7 @@
                   "split_sizes": [0.7, 0.2, 0.1]
   },
   "train_config": {
+                   "run_name": "arbitrary_run_name",
                    "logging": true,
                    "save_model": "saved_model_name",
                    "load_model": "saved_model_name",
