@@ -9,6 +9,7 @@ import torch
 import dgl
 
 from utils.helper import loss_weights, auroc_score, save_model
+from torch.utils.tensorboard import SummaryWriter
 from sklearn.metrics import f1_score
 from nn.DGL_models import GNNModel
 
@@ -32,6 +33,7 @@ class Trainer:
         self.device = device
         self.params = model.parameters()
         self.optimizer = torch.optim.Adam(self.params, lr=self.train_config["lr"], weight_decay=self.train_config["wd"])
+        self.writer = lambda log_path='../logs', name=self.train_config["run_name"]: SummaryWriter(log_path + name)
 
     def train(self, epoch) -> torch.tensor:
         self.model.train()
@@ -70,6 +72,23 @@ class Trainer:
         self.model.eval()
         logits = self.model(self.dataset, self.dataset.ndata["x"])
 
+    def write(self, epoch, scores):
+
+        for score in scores:
+            self.writer.add_scalar
+
+        train_acc, test_acc = scores[0]
+        train_f1, test_f1 = scores[1]
+        train_auroc, test_auroc = scores[2]
+
+        self.writer.add_scalar('Accuracy/train', train_acc, epoch)
+        self.writer.add_scalar('Accuracy/test', test_acc, epoch)
+        self.writer.add_scalar('Accuracy/train', train_f1, epoch)
+        self.writer.add_scalar('Accuracy/test', test_f1, epoch)
+        self.writer.add_scalar('Accuracy/train', train_auroc, epoch)
+        self.writer.add_scalar('Accuracy/test', test_auroc, epoch)
+        self.writer.flush()
+
     def run_train(self):
         for epoch in range(self.train_config["epochs"]):
             print(f"Epoch: {epoch}", "-" * 20)
@@ -80,3 +99,4 @@ class Trainer:
             print(f'Train_f1: {round(scores["f1"][0], 3)}, Test_f1: {round(scores["f1"][2], 3)}')
             print(f'Train_roc: {round(scores["auc"][0], 3)}, Test_roc: {round(scores["auc"][2], 3)}')
 
+            self.write(scores)
