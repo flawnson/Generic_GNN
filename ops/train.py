@@ -73,20 +73,10 @@ class Trainer:
         logits = self.model(self.dataset, self.dataset.ndata["x"])
 
     def write(self, epoch, scores):
+        for score_type, score_set in scores.items():
+            for score_split in score_set:
+                self.writer.add_scalar(score_type + score_split[0], score_split[1], epoch)
 
-        for scoretype, scoreset in scores.items():
-            self.writer.add_scalar(scoretype + scoreset[0], scoreset[1], epoch)
-
-        # train_acc, test_acc = scores[0]
-        # train_f1, test_f1 = scores[1]
-        # train_auroc, test_auroc = scores[2]
-        #
-        # self.writer.add_scalar('Accuracy/train', train_acc, epoch)
-        # self.writer.add_scalar('Accuracy/test', test_acc, epoch)
-        # self.writer.add_scalar('Accuracy/train', train_f1, epoch)
-        # self.writer.add_scalar('Accuracy/test', test_f1, epoch)
-        # self.writer.add_scalar('Accuracy/train', train_auroc, epoch)
-        # self.writer.add_scalar('Accuracy/test', test_auroc, epoch)
         self.writer.flush()
 
     def run_train(self):
