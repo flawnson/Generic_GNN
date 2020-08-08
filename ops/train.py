@@ -11,11 +11,12 @@ import dgl
 from utils.helper import loss_weights, auroc_score, save_model, pretty_print
 from torch.utils.tensorboard import SummaryWriter
 from sklearn.metrics import f1_score
-from nn.DGL_models import GNNModel
+from nn.DGL_models import GenericGNNModel
+from read.preprocessing import GenericDataset
 
 
 class Trainer:
-    def __init__(self, train_config: dict, dataset: dgl.DGLGraph, model: GNNModel, device: torch.device):
+    def __init__(self, train_config: dict, dataset: GenericDataset, model: GenericGNNModel, device: torch.device):
         """ Class for training and testing loops
 
         Args:
@@ -72,7 +73,7 @@ class Trainer:
         self.model.eval()
         logits = self.model(self.dataset, self.dataset.ndata["x"])
 
-    def write(self, epoch, scores) -> None:
+    def write(self, epoch: int, scores: dict) -> None:
         for score_type, score_set in scores.items():
             for score_split in score_set:
                 self.writer.add_scalar(score_type + score_split[0], score_split[1], epoch)

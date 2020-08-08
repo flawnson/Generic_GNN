@@ -19,7 +19,7 @@ except ModuleNotFoundError:
     print("Ray is not available, continuing run without benchmarking")
 
 
-def tune_model(config) -> None:
+def tune_model(config: dict) -> None:
     """
     Tune function to be passed into ray.tune run function
     :param config: Tuning config dict
@@ -108,7 +108,7 @@ def tune_model(config) -> None:
 
 
 class Tuner:
-    def __init__(self, config, dataset, device) -> dict:
+    def __init__(self, config: dict, dataset: GenericDataset, device: torch.device) -> dict:
         """
         :param dataset: PyG data object
         :param masks: Holdout validation split masks
@@ -122,13 +122,13 @@ class Tuner:
         config["dataset"] = dataset
         config["epochs"] = config.get("epochs")
 
-        config["lr"] = tune.sample_from(lambda daft: tune.loguniform(0.00000001, 0.001))
-        config["wd"] = tune.sample_from(lambda daft: tune.loguniform(0.0000001, 0.0001))
-        config["dropout"] = tune.sample_from(lambda daft: tune.loguniform(0.01, 0.70))
+        config["lr"] = tune.sample_from(lambda _: tune.loguniform(0.00000001, 0.001))
+        config["wd"] = tune.sample_from(lambda _: tune.loguniform(0.0000001, 0.0001))
+        config["dropout"] = tune.sample_from(lambda _: tune.loguniform(0.01, 0.70))
 
         self.tuning_config = config
 
-    def run_tune(self):
+    def run_tune(self) -> dict:
         # tune_log = logger.set_tune_logger("tune_logging", osp.join(osp.dirname(__file__), "tune_info_log.txt"))
         import multiprocessing
 

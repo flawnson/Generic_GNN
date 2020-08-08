@@ -49,8 +49,8 @@ if __name__ == "__main__":
     # log.info(f"Git hash: {git_hash}, branch: {git_branch}")
 
     # Use if-else to check if requested dataset and model type (from config file) is available
+    dataset: GenericDataset = None
     if json_data.get("dataset") == "primary_labelset":
-        dataset: GenericDataset = None
         dataset = PrimaryLabelset(json_data["data_config"]).dataset.to(device)
     else:
         raise NotImplementedError(f"{json_data['dataset']} is not a dataset")  # Add to logger when implemented
@@ -72,9 +72,12 @@ if __name__ == "__main__":
         load_model(json_data, model, device)
 
         Trainer(json_data["train_config"], dataset, model, device).run_train()
+
     elif json_data["run_type"] == "tune":
         Tuner(json_data["tune_config"], dataset, device).run_tune()
+
     elif json_data["run_type"] == "benchmark":
         Benchmarker(json_data, device)
+
     else:
         raise NotImplementedError(f"{json_data['run_type']} is not a run type")

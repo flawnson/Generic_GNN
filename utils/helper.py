@@ -5,6 +5,7 @@ import torch
 import os.path as osp
 import torch.nn.functional as F
 
+from nn.DGL_models import GenericGNNModel
 from sklearn.metrics import roc_auc_score
 from torch.utils.tensorboard import SummaryWriter
 
@@ -42,7 +43,7 @@ def auroc_score(dataset, agg_mask: np.ndarray, split_mask, logits: torch.tensor,
     return auroc
 
 
-def pretty_print(scores):
+def pretty_print(scores: dict) -> None:
     # Function to use for printing model scores in training pipeline
     for score_type, score_set in scores.items():
         for score_split in score_set:
@@ -50,12 +51,12 @@ def pretty_print(scores):
         print("-" * 10)
 
 
-def save_model(config, epoch, model):
+def save_model(config: dict, epoch: int, model: GenericGNNModel) -> None:
     if config.get("save_model", False) and epoch == config["epochs"]:
         torch.save(model.state_dict, osp.join(osp.dirname(__file__), "output", config["save_model"]))
 
 
-def load_model(config, model, device):
+def load_model(config: dict, model: GenericGNNModel, device: torch.device) -> GenericGNNModel:
     # When loading a model on a CPU that was trained with a GPU, pass torch.device('cpu')
     # to the map_location argument in the torch.load() function.
     # In this case, the storages underlying the tensors are dynamically remapped
