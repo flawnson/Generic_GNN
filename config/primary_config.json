@@ -17,8 +17,9 @@
                   "split_sizes": [0.7, 0.2, 0.1]
   },
   "train_config": {
-                   "run_name": "arbitrary_run_name",
                    "logging": true,
+                   "write_summary": true,
+                   "run_name": "arbitrary_run_name",
                    "save_model": "saved_model_name",
                    "load_model": "saved_model_name",
                    "model_config": {

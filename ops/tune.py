@@ -12,6 +12,7 @@ import tensorflow as tf  # Needed to prevent get_global_worker attribute error
 from sklearn.metrics import f1_score
 from utils.helper import auroc_score
 from utils.early_stopping import Stop
+from read.preprocessing import GenericDataset
 
 try:
     from ray import tune
