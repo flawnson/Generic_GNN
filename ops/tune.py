@@ -76,7 +76,7 @@ def tune_model(config: dict) -> None:
             agg_mask = np.logical_and(mask, config["dataset"].known_mask)
             pred = logits[alpha].max(1)[1]
 
-            accs.append(pred.eq(dataset.ndata["y"].y[alpha]).sum().item() / alpha.sum().item())
+            accs.append(pred.eq(dataset.ndata["y"][alpha]).sum().item() / alpha.sum().item())
             f1_scores.append(f1_score(y_true=dataset.ndata["y"][alpha].to('cpu'),
                                       y_pred=pred.to('cpu'),
                                       average='macro'))
