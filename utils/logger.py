@@ -1,4 +1,5 @@
-"""This file contains the generic logger code that can be called from within any pipeline to log data about the run"""
+""" This file contains the generic logger code that can be called from within any pipeline to log data about the run
+    Custom logger to be used in training and data preprocessing pipelines. Tuning pipeline uses ray tune's logger """
 
 import datetime
 import logging

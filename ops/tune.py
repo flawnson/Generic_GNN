@@ -72,15 +72,15 @@ def tune_model(config: dict) -> None:
         accs, auroc_scores, f1_scores = [], [], []
         s_logits = F.softmax(input=logits[:, 1:], dim=1)
 
-        for mask in dataset.splits:
+        for mask in dataset.splits.values():
             agg_mask = np.logical_and(mask, config["dataset"].known_mask)
             pred = logits[alpha].max(1)[1]
 
-            accs.append(pred.eq(self.dataset.ndata["y"].y[alpha]).sum().item() / alpha.sum().item())
-            f1_scores.append(f1_score(y_true=self.dataset.ndata["y"][alpha].to('cpu'),
+            accs.append(pred.eq(dataset.ndata["y"].y[alpha]).sum().item() / alpha.sum().item())
+            f1_scores.append(f1_score(y_true=dataset.ndata["y"][alpha].to('cpu'),
                                       y_pred=pred.to('cpu'),
                                       average='macro'))
-            auroc_scores.append(auroc_score(self.dataset, agg_mask, mask, logits, s_logits))
+            auroc_scores.append(auroc_score(dataset, agg_mask, mask, logits, s_logits))
 
             if epoch == config.get("epochs"):  # Only calc AUROC on final epoch for computational efficiency purposes
                 if np.unique(dataset.ndata["y"].numpy()) == 2:
@@ -143,7 +143,8 @@ class Tuner:
             local_dir=osp.join(osp.dirname(osp.dirname(__file__)),
                                "logs",
                                self.tuning_config.get("model_config")["model"] + "_tuning"),
-            resources_per_trial={"cpu": cpus, "gpu": gpus}
+            resources_per_trial={"cpu": cpus, "gpu": gpus},
+            loggers=tune.logger.DEFAULT_LOGGERS,
         )
 
         # tune_log("Best config: {}".format(analysis.get_best_config(metric="train_accuracy")))
