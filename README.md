@@ -10,7 +10,13 @@ Stored in directory.txt (use ```Get-ChildItem | tree /F > foo.txt``` in PowerShe
 
 # Getting Started
 ## Setup
-First you'll need to run setup.py
+First you'll want to create a new conda (or pip) env with Python 3.7
+```shell
+conda create -n env_name python=3.7 anaconda
+source activate env_name
+```
+
+Then you'll need to run setup.py
 ```shell
 python setup.py
 ```
