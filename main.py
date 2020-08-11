@@ -5,13 +5,11 @@
     Documentation is written Google-style (minus examples) with type annotations as per pep484 for most of this project
     """
 
-# TODO: Implement benchmarking pipeline
+# TODO: Implement scoring class object
 # TODO: Implement tuning for model and layer sizes
 # TODO: Implement optimizer/loss customization
 # TODO: Implement basic multi-GPU support
 # TODO: Implement basic unit testing for splits
-# TODO: Implement VAE to generate dataset features
-# TODO: Implement linear model to validate dataset features
 import os.path as osp
 import subprocess
 import argparse
@@ -38,6 +36,7 @@ if __name__ == "__main__":
     # DGL Overrides torch.tensor.to() and implements it's own to() method for its graph objects
     device = torch.device("cuda" if not args.device and torch.cuda.is_available() else "cpu")
     log.info(f"Using {device} for compute")
+
     # See https://discuss.pytorch.org/t/what-does-torch-backends-cudnn-benchmark-do/5936
     # benchmark mode is good whenever your input sizes for your network do not vary
     torch.backends.cudnn.benchmark = True if not args.device and torch.cuda.is_available() else False

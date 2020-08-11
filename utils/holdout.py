@@ -89,7 +89,7 @@ class Holdout:
         test_bool[test_idx] = True
         val_bool[val_idx] = True
 
-        return {"trainset": train_bool, "testset": test_bool, "valset": val_bool}
+        return {"train_mask": train_bool, "test_mask": test_bool, "val_mask": val_bool}
 
     def balanced_split(self):
         """TODO: Check if split is performing properly"""

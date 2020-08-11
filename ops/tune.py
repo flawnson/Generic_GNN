@@ -11,10 +11,11 @@ import tensorflow as tf  # Needed to prevent get_global_worker attribute error
 
 from sklearn.metrics import f1_score
 from utils.helper import auroc_score
-from utils.early_stopping import Stop
+from utils.stopper import Stop
 from read.preprocessing import GenericDataset
 
 try:
+    import ray
     from ray import tune
 except ModuleNotFoundError:
     print("Ray is not available, continuing run without benchmarking")
@@ -45,24 +46,21 @@ def tune_model(config: dict) -> None:
         model.train()
         optimizer.zero_grad()
         logits = model(dataset, dataset.ndata["x"])
-        alpha = np.logical_and(config.get('train_mask'), config.get('dataset').known_mask)
-        imb_Wc = torch.bincount(config.get('dataset').ndata["y"][alpha]).float().clamp(min=1e-10, max=1e10) / \
-                 config.get('dataset').ndata["y"][alpha].shape[0]
+        alpha = np.logical_and(dataset.splits.get('train_mask'), dataset.known_mask)
+        imb_Wc = torch.bincount(dataset.ndata["y"][alpha]).float().clamp(min=1e-10, max=1e10) / dataset.ndata["y"][alpha].shape[0]
         weights = (1 / imb_Wc) / (sum(1 / imb_Wc))
 
-        loss = F.cross_entropy(logits[alpha],
-                               config.get('dataset').ndata["y"][alpha],
-                               weight=weights)
+        loss = F.cross_entropy(logits[alpha], dataset.ndata["y"][alpha], weight=weights)
         _loss = loss.clone().detach().to("cpu").item()
 
-        if config.get("early_stopping_loss"):
-            if _loss > loss_state:
-                loss_no_improve += 1
-                loss_state = _loss
-
-            if loss_no_improve > config.get("loss_patience"):
-                print(f'Loss failed to decrease for {config["loss_patience"]} iter, early stopping current iter')
-                break
+        # if config.get("early_stopping_loss"):
+        #     if _loss > loss_state:
+        #         loss_no_improve += 1
+        #         loss_state = _loss
+        #
+        #     if loss_no_improve > config.get("loss_patience"):
+        #         print(f'Loss failed to decrease for {config["loss_patience"]} iter, early stopping current iter')
+        #         break
 
         loss.backward()
         optimizer.step()
@@ -73,7 +71,7 @@ def tune_model(config: dict) -> None:
         s_logits = F.softmax(input=logits[:, 1:], dim=1)
 
         for mask in dataset.splits.values():
-            agg_mask = np.logical_and(mask, config["dataset"].known_mask)
+            agg_mask = np.logical_and(mask, dataset.known_mask)
             pred = logits[alpha].max(1)[1]
 
             accs.append(pred.eq(dataset.ndata["y"][alpha]).sum().item() / alpha.sum().item())
@@ -84,7 +82,7 @@ def tune_model(config: dict) -> None:
 
             if epoch == config.get("epochs"):  # Only calc AUROC on final epoch for computational efficiency purposes
                 if np.unique(dataset.ndata["y"].numpy()) == 2:
-                    auroc_scores.append(roc_auc_score(y_true=config.get('dataset').ndata["y"][alpha].to('cpu').numpy(),
+                    auroc_scores.append(roc_auc_score(y_true=dataset.ndata["y"][alpha].to('cpu').numpy(),
                                                       y_score=np.amax(s_logits[alpha].to('cpu').data.numpy(), axis=1),
                                                       average=None,
                                                       multi_class=None))
@@ -132,6 +130,7 @@ class Tuner:
         cpus = int(multiprocessing.cpu_count())
         gpus = 1 if torch.cuda.device_count() >= 1 else 0
 
+        ray.init()
         analysis = tune.run(
             tune_model,
             config=self.tuning_config,

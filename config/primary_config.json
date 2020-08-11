@@ -1,5 +1,5 @@
 {
-  "run_type": "demo",
+  "run_type": "benchmark",
   "dataset": "primary_labelset",
   "cuda": false,
   "data_config": {
@@ -40,7 +40,7 @@
                                    "names": ["name1, name2, name3, name4"],
                                    "layer_sizes": [128, 68, 32]},
                   "scores": ["score1", "score2"],
-                  "early_stop": {"loss": 0, "accs": 0},
+                  "early_stop": {"loss": 5, "accs": 5},
                   "epochs": 500,
                   "lr": [0.00000001, 0.001],
                   "wd": [0.0000001, 0.0001],
@@ -48,6 +48,5 @@
 
   },
   "benchmark_config": {
-                       "something": null
   }
 }
