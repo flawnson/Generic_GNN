@@ -30,9 +30,9 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--config", help="json config file", type=str)
     parser.add_argument("-d", "--device", help="device to use", type=bool)
     args = parser.parse_args()
-    set_file_logger()
 
     json_data: dict = json.load(open(args.config))
+    set_file_logger(json_data)
     # DGL Overrides torch.tensor.to() and implements it's own to() method for its graph objects
     device = torch.device("cuda" if not args.device and torch.cuda.is_available() else "cpu")
     log.info(f"Using {device} for compute")

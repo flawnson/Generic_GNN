@@ -13,26 +13,30 @@ date_format = '%Y-%m-%d %I:%M:%S %p'
 
 
 # Callable function to set logger for any module in the repo
-def set_file_logger(name='', filename="run.log", level=logging.DEBUG):
-    logger = logging.getLogger(name)
-    logging.basicConfig(format=log_format,
-                        datefmt=date_format,
-                        level=level)
-    time = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
-    try:
-        os.makedirs(osp.join(osp.dirname(__file__), f"../logs"))
-    except OSError as e:
-        if e.errno != errno.EEXIST:
-            raise e
-    log_file = osp.join(osp.dirname(__file__), f"../logs", f"{time}-{filename}")
-    print(f"Writing logs to {log_file}")
-    handler = logging.FileHandler(osp.join(osp.dirname(__file__), f"../logs", f"{time}-{filename}"), mode="a")
-    log_formatter = logging.Formatter(fmt=log_format,
-                                      datefmt=date_format)
-    handler.setFormatter(log_formatter)
-    logger.addHandler(handler)
-    logger.setLevel(level)
-    return logger
+def set_file_logger(config, name='', filename="run.log", level=logging.DEBUG):
+    if config["logging"]:
+        logger = logging.getLogger(name)
+        logging.basicConfig(format=log_format,
+                            datefmt=date_format,
+                            level=level)
+        time = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+        try:
+            os.makedirs(osp.join(osp.dirname(__file__), f"../logs"))
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise e
+        log_file = osp.join(osp.dirname(__file__), f"../logs", f"{time}-{filename}")
+        print(f"Writing logs to {log_file}")
+        handler = logging.FileHandler(osp.join(osp.dirname(__file__), f"../logs", f"{time}-{filename}"), mode="a")
+        log_formatter = logging.Formatter(fmt=log_format,
+                                          datefmt=date_format)
+        handler.setFormatter(log_formatter)
+        logger.addHandler(handler)
+        logger.setLevel(level)
+        return logger
+    else:
+        print("Logging has been disabled")
+        logging.disable(level=logging.CRITICAL)
 
 
 def get_logger(name):

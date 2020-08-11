@@ -1,9 +1,9 @@
 {
   "run_type": "benchmark",
   "dataset": "primary_labelset",
+  "logging": false,
   "cuda": false,
   "data_config": {
-                  "logging": true,
                   "directory": ["data"],
                   "edgelist_file": "edgelist.csv",
                   "node_features_file": "embeddings_086.json",
@@ -17,7 +17,6 @@
                   "split_sizes": [0.7, 0.2, 0.1]
   },
   "train_config": {
-                   "logging": true,
                    "write_summary": true,
                    "run_name": "arbitrary_run_name",
                    "save_model": "saved_model_name",
@@ -34,7 +33,6 @@
                    "wd": 5e-5
   },
   "tune_config": {
-                  "logging": true,
                   "model_config": {
                                    "model": "GAT",
                                    "names": ["name1, name2, name3, name4"],
