@@ -16,7 +16,7 @@ from sklearn.metrics import f1_score
 
 
 class Trainer:
-    def __init__(self, train_config: dict, dataset: GenericDataset, device: torch.device):
+    def __init__(self, config: dict, dataset: GenericDataset, device: torch.device):
         """ Class for training and testing loops
 
         Args:
@@ -28,7 +28,7 @@ class Trainer:
         Returns:
 
         """
-        self.train_config = train_config
+        self.train_config = config["train_config"]
         self.dataset = dataset
         self.device = device
         self.model = self.get_model()
@@ -81,6 +81,10 @@ class Trainer:
         # self.writer.flush()
 
     def get_model(self):
+        # Models are defined in DGL_models.py. You may build you custom layer with DGL in DGL_layers.py or use an
+        # Off-the-shelf layer from DGL. You many define a list of layer types to use in the json config file, otherwise
+        # you must provide a string with the name of the layer to use for the entire model
+
         model: GenericGNNModel = None
         if self.train_config["model_config"]["model"] == "GAT":
             model = GNNModel(self.train_config["model_config"], self.dataset, self.device, pooling=None).to(self.device)

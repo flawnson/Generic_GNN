@@ -117,18 +117,13 @@ class Tuner:
         :param device: cuda or cpu
         """
 
-        self.config = config["tune_config"]
-        config["model"] = config.get("model")
-        config["device"] = device
-        config["dataset"] = dataset
-        config["epochs"] = config.get("epochs")
-        (config["train_mask"], config["test_mask"], config["valid_mask"]) = dataset.splits.values()
+        self.tuning_config = config["tune_config"]
+        self.tuning_config["device"] = device
+        self.tuning_config["dataset"] = dataset
 
-        config["lr"] = tune.sample_from(lambda _: tune.loguniform(0.00000001, 0.001))
-        config["wd"] = tune.sample_from(lambda _: tune.loguniform(0.0000001, 0.0001))
-        config["dropout"] = tune.sample_from(lambda _: tune.loguniform(0.01, 0.70))
-
-        self.tuning_config = config
+        self.tuning_config["lr"] = tune.sample_from(lambda _: tune.loguniform(0.00000001, 0.001))
+        self.tuning_config["wd"] = tune.sample_from(lambda _: tune.loguniform(0.0000001, 0.0001))
+        self.tuning_config["dropout"] = tune.sample_from(lambda _: tune.loguniform(0.01, 0.70))
 
     def run_tune(self) -> dict:
         # tune_log = logger.set_tune_logger("tune_logging", osp.join(osp.dirname(__file__), "tune_info_log.txt"))
