@@ -1,5 +1,5 @@
 {
-  "run_type": "tune",
+  "run_type": "demo",
   "dataset": "primary_labelset",
   "cuda": false,
   "data_config": {

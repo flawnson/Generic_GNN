@@ -19,9 +19,7 @@ import torch
 import json
 
 from read.preprocessing import GenericDataset, PrimaryLabelset
-from nn.DGL_models import GenericGNNModel, GNNModel
 from utils.holdout import Holdout
-from utils.helper import load_model
 from ops.benchmark import Benchmarker
 from ops.train import Trainer
 from ops.tune import Tuner
@@ -61,21 +59,13 @@ if __name__ == "__main__":
         # Off-the-shelf layer from DGL. You many define a list of layer types to use in the json config file, otherwise
         # you must provide a string with the name of the layer to use for the entire model
 
-        model: GenericGNNModel = None
-        if json_data.get("train_config")["model_config"]["model"] == "GAT":
-            model = GNNModel(json_data.get("train_config")["model_config"], dataset, device, pooling=None).to(device)
-        else:
-            raise NotImplementedError(f"{json_data['model']} is not a model")  # Add to logger when implemented
-
-        load_model(json_data, model, device)
-
-        Trainer(json_data["train_config"], dataset, model, device).run_train()
+        Trainer(json_data["train_config"], dataset, device).run_train()
 
     elif json_data["run_type"] == "tune":
         Tuner(json_data["tune_config"], dataset, device).run_tune()
 
     elif json_data["run_type"] == "benchmark":
-        Benchmarker(json_data, device)
+        Benchmarker(json_data, dataset, device).run_benchmark()
 
     else:
         raise NotImplementedError(f"{json_data['run_type']} is not a run type")

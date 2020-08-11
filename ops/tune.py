@@ -117,11 +117,12 @@ class Tuner:
         :param device: cuda or cpu
         """
 
-        (config["train_mask"], config["test_mask"], config["valid_mask"]) = dataset.splits.values()
+        self.config = config["tune_config"]
         config["model"] = config.get("model")
         config["device"] = device
         config["dataset"] = dataset
         config["epochs"] = config.get("epochs")
+        (config["train_mask"], config["test_mask"], config["valid_mask"]) = dataset.splits.values()
 
         config["lr"] = tune.sample_from(lambda _: tune.loguniform(0.00000001, 0.001))
         config["wd"] = tune.sample_from(lambda _: tune.loguniform(0.0000001, 0.0001))

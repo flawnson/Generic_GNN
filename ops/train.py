@@ -8,15 +8,15 @@ import numpy as np
 import torch
 import dgl
 
-from utils.helper import loss_weights, auroc_score, save_model, pretty_print
+from nn.DGL_models import GenericGNNModel, GNNModel
+from utils.helper import loss_weights, auroc_score, save_model, pretty_print, load_model
+from read.preprocessing import GenericDataset
 from torch.utils.tensorboard import SummaryWriter
 from sklearn.metrics import f1_score
-from nn.DGL_models import GenericGNNModel
-from read.preprocessing import GenericDataset
 
 
 class Trainer:
-    def __init__(self, train_config: dict, dataset: GenericDataset, model: GenericGNNModel, device: torch.device):
+    def __init__(self, train_config: dict, dataset: GenericDataset, device: torch.device):
         """ Class for training and testing loops
 
         Args:
@@ -30,9 +30,9 @@ class Trainer:
         """
         self.train_config = train_config
         self.dataset = dataset
-        self.model = model
         self.device = device
-        self.params = model.parameters()
+        self.model = self.get_model()
+        self.params = self.model.parameters()
         self.optimizer = torch.optim.Adam(self.params, lr=self.train_config["lr"], weight_decay=self.train_config["wd"])
         self.writer = SummaryWriter("../logs" + self.train_config["run_name"])
 
@@ -74,10 +74,20 @@ class Trainer:
         logits = self.model(self.dataset, self.dataset.ndata["x"])
 
     def write(self, epoch: int, scores: dict) -> None:
+        self.writer.add_graph(self.model, self.dataset, verbose=True)
         for score_type, score_set in scores.items():
             for score_split in score_set:
                 self.writer.add_scalar(score_type + score_split[0], score_split[1], epoch)
         # self.writer.flush()
+
+    def get_model(self):
+        model: GenericGNNModel = None
+        if self.train_config["model_config"]["model"] == "GAT":
+            model = GNNModel(self.train_config["model_config"], self.dataset, self.device, pooling=None).to(self.device)
+        else:
+            raise NotImplementedError(f"{self.train_config['model_config']['model']} is not a model")  # Add to logger when implemented
+
+        load_model(self.train_config, model, self.device)
 
     def run_train(self):
         for epoch in range(self.train_config["epochs"]):

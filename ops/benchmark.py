@@ -5,13 +5,17 @@ from ops.tune import Tuner
 from ops.train import Trainer
 
 
-class Benchmarker():
-    def __init__(self, config, device):
-        self.benchmarking_config = config["benchmarking_config"]
+class Benchmarker:
+    def __init__(self, config, dataset, device):
+        self.config = config
+        self.dataset = dataset
         self.device = device
 
     def run_tune(self):
-        Tuner(json_data["tune_config"], dataset, device).run_tune()
+        return Tuner(self.config["tune_config"], self.dataset, self.device).run_tune()
 
-    def run_train(self):
-        Trainer(json_data["train_config"], dataset, model, device).run_train()
+    def run_train(self, best_config):
+        return Trainer(best_config["train_config"], self.dataset, model, self.device).run_train()
+
+    def run_benchmark(self):
+        return self.run_train(self.run_tune())
