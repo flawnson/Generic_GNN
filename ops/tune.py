@@ -102,8 +102,8 @@ def tune_model(config: dict) -> None:
         train_acc, test_acc, valid_acc = accs
         train_f1, test_f1, valid_f1 = f1_scores
 
-        early_stopper.early_stopping(train_acc, "accs")
-        early_stopper.early_stopping(train_acc, "loss")
+        early_stopper.early_stopping(train_acc, "accs", True)
+        early_stopper.early_stopping(train_acc, "loss", False)
 
 
 class Tuner:
