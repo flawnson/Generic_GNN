@@ -78,7 +78,7 @@ class Trainer:
         for score_type, score_set in scores.items():
             for score_split in score_set:
                 self.writer.add_scalar(score_type + score_split[0], score_split[1], epoch)
-        # self.writer.flush()
+        self.writer.flush()
 
     def get_model(self):
         # Models are defined in DGL_models.py. You may build you custom layer with DGL in DGL_layers.py or use an

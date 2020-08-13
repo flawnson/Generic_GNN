@@ -35,7 +35,7 @@ def set_file_logger(config, name='', filename="run.log", level=logging.DEBUG):
         logger.setLevel(level)
         return logger
     else:
-        print("Logging has been disabled")
+        print("Logging has been disabled (WARNING: Note that this also disables logging for Ray Tune's pipeline")
         logging.disable(level=logging.CRITICAL)
 
 
