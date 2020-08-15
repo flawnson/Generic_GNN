@@ -6,7 +6,7 @@
     """
 
 # TODO: Implement scoring class object
-# TODO: Fix early stopper
+# TODO: Fix holdout methods
 # TODO: Implement tuning for model and layer sizes
 # TODO: Implement optimizer/loss customization
 # TODO: Implement basic multi-GPU support

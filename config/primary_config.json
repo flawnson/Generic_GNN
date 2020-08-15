@@ -1,7 +1,7 @@
 {
   "run_type": "benchmark",
   "dataset": "primary_labelset",
-  "logging": true,
+  "logging": false,
   "cuda": false,
   "data_config": {
                   "directory": ["data"],
