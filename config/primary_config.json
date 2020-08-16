@@ -26,7 +26,14 @@
                                     "names": ["name1, name2, name3, name4"],
                                     "layer_sizes": [128, 68, 32]
                    },
-                   "scores": ["score1", "score2"],
+                   "scores": {
+                              "acc": null,
+                              "f1": ["macro"],
+                              "auc": ["macro", "ovo"],
+                              "prec": ["binary", "warn"],
+                              "rec": ["binary", "warn"],
+                              "jac": ["binary"]
+                   },
                    "weighted_loss": true,
                    "epochs": 1000,
                    "lr": 0.0005,
