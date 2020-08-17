@@ -41,5 +41,8 @@ You can see the logged results using TensorBoard
 tensorboard --logdir=logs/GAT_tuning/tune_model
 ```
 
+None of the above will work without the correct data files, all of which are not publically available as of currently.
+
 # Acknowledgements
 To my mentors and my friends whom have taught and inspired me all these years.
+Thanks to PyTorch Geometric for providing me with the background to use DGL, and DGL for providing me with a kick ass library.
