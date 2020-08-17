@@ -5,7 +5,6 @@
     Documentation is written Google-style (minus examples) with type annotations as per pep484 for most of this project
     """
 
-# TODO: Implement scoring class object
 # TODO: Fix holdout methods
 # TODO: Implement tuning for model and layer sizes
 # TODO: Implement optimizer/loss customization

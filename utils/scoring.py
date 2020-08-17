@@ -11,6 +11,7 @@ from read.preprocessing import GenericDataset
 
 
 class Scores:
+    # TODO: Requires refactor and consideration of score-specific arguments
     def __init__(self, score_config: dict, dataset: GenericDataset, logits, masks: list):
         self.score_config = score_config
         self.mask = np.logical_and(*masks)
