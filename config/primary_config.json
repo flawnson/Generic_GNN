@@ -30,6 +30,7 @@
                               "acc": null,
                               "f1": ["macro"],
                               "auc": ["macro", "ovo"],
+                              "con": ["binary"],
                               "prec": ["binary", "warn"],
                               "rec": ["binary", "warn"],
                               "jac": ["binary"]

@@ -5,7 +5,7 @@
 import numpy as np
 import torch.functional as F
 
-from sklearn.metrics import f1_score, precision_score, recall_score, jaccard_score
+from sklearn.metrics import f1_score, precision_score, recall_score, jaccard_score, confusion_matrix
 from utils.helper import auroc_score
 from read.preprocessing import GenericDataset
 
@@ -19,70 +19,58 @@ class Scores:
         self.s_logits = F.softmax(input=logits[:, 1:], dim=1)  # To account for the unknown class
         self.prediction = logits[self.mask].max(1)[1]
 
-    def accuracy(self):
+    def accuracy(self, params):
         return self.prediction.eq(self.dataset.ndata["y"][self.mask]).sum().item() / self.mask.sum().item()
 
-    def f1_score(self):
+    def f1_score(self, params):
         return f1_score(y_true=self.dataset.ndata["y"][self.mask].to('cpu'),
                        y_pred=self.prediction.to('cpu'),
-                       average='macro')
+                       average=params[0])
 
-    def auroc(self):
+    def auroc(self, params):
         return auroc_score(self.dataset, self.mask, self.mask[1], self.logits, self.s_logits)
 
-    def tps(self):
-        return [((self.prediction == i) & (target == i)).sum() for i in range(dataset)]
+    def confusion_mat(self, params):
+        return confusion_matrix(y_true=self.dataset.ndata["y"][self.mask].to('cpu'),
+                               y_pred=self.prediction.to('cpu'),
+                               labels=None,
+                               sample_weight=None,
+                               normalize=None)
 
-    def fps(self):
-        pass
-
-    def fns(self):
-        pass
-
-    def tns(self):
-        pass
-
-    def mean_iou(self):
-        pass
-
-    def precision(self):
+    def precision(self, params):
         return precision_score(y_true=self.dataset.ndata["y"][self.mask].to('cpu'),
                                y_pred=self.prediction.to('cpu'),
                                labels=None,
                                pos_label=1,
-                               average='binary',
+                               average=params[0],
                                sample_weight=None,
-                               zero_division='warn')
+                               zero_division=params[1])
 
-    def recall(self):
+    def recall(self, params):
         return recall_score(y_true=self.dataset.ndata["y"][self.mask].to('cpu'),
                             y_pred=self.prediction.to('cpu'),
                             labels=None,
                             pos_label=1,
-                            average='binary',
+                            average=params[0],
                             sample_weight=None,
-                            zero_division='warn')
+                            zero_division=params[1])
 
-    def jaccard(self):
+    def jaccard(self, params):
         return jaccard_score(y_true=self.dataset.ndata["y"][self.mask].to('cpu'),
                              y_pred=self.prediction.to('cpu'),
                              labels=None,
                              pos_label=1,
-                             average='binary',
+                             average=params[0],
                              sample_weight=None)
 
     def score(self):
-        scoreset = {"acc": self.accuracy(),
-                    "auc": self.auroc(),
-                    "f1": self.f1_score(),
-                    "tps": self.tps(),
-                    "fps": self.fps(),
-                    "fns": self.fns(),
-                    "tns": self.tns(),
-                    "iou": self.mean_iou(),
-                    "prec": self.precision(),
-                    "rec": self.recall(),
-                    "jac": self.jaccard()
+        scoreset = {"acc": self.accuracy(self.score_config["acc"]),
+                    "auc": self.auroc(self.score_config["auc"]),
+                    "f1": self.f1_score(self.score_config["f1"]),
+                    "con": self.confusion_mat(self.score_config["con"]),
+                    "prec": self.precision(self.score_config["prec"]),
+                    "rec": self.recall(self.score_config["rec"]),
+                    "jac": self.jaccard(self.score_config["jac"])
                     }
 
-        return [scoreset[score_type(score_params)] for score_type, score_params, in self.score_config.items()]
+        return [scoreset[score_type] for score_type, score_params, in self.score_config.items()]
