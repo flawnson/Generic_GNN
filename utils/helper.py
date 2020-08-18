@@ -20,14 +20,14 @@ def loss_weights(dataset, agg_mask: np.ndarray, device: torch.device) -> torch.t
     return weights.to(device)
 
 
-def auroc_score(dataset, agg_mask: np.ndarray, split_mask, logits: torch.tensor, s_logits) -> float:
+def auroc_score(params: dict, dataset, agg_mask: np.ndarray, split_mask, logits: torch.tensor, s_logits) -> float:
     """ Logic for calculating roc_auc_score using sklearn (different configurations needed depending on the labelset
         and task type """
     if len(np.unique(dataset.ndata["y"].numpy())) == 2:
         auroc = roc_auc_score(y_true=dataset.y[agg_mask].to('cpu').numpy(),
                               y_score=np.amax(s_logits[agg_mask].to('cpu').data.numpy(), axis=1),
-                              average=None,
-                              multi_class=None)
+                              average=params[0],  # Should be None in binary case
+                              multi_class=params[1])  # Should be None in binary case
     else:
         output_mask = np.isin(list(range(dataset.ndata["y"][split_mask].max())),
                               np.unique(dataset.ndata["y"][split_mask].to('cpu').numpy()))
@@ -37,8 +37,8 @@ def auroc_score(dataset, agg_mask: np.ndarray, split_mask, logits: torch.tensor,
 
         auroc = roc_auc_score(y_true=dataset.ndata["y"][agg_mask].to('cpu').numpy(),
                               y_score=s_logits[agg_mask],
-                              average='macro',
-                              multi_class='ovo')
+                              average=params[0],
+                              multi_class=params[1])
 
     return auroc
 

@@ -1,12 +1,11 @@
-"""This file contains the code used for early stopping regularization for each run type"""
+""" This file contains the code used for early stopping regularization for each run type works for both greater than
+    and less than situations """
 
 import numpy as np
 
-from typing import List, Dict
-
 
 class Stop(object):
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         self.early_stop = config["early_stop"]
         self.states = dict(zip(self.early_stop.keys(), np.zeros(len(self.early_stop))))
         self.accumulators = dict(zip(self.early_stop.keys(), np.zeros(len(self.early_stop))))

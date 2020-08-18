@@ -13,7 +13,7 @@ date_format = '%Y-%m-%d %I:%M:%S %p'
 
 
 # Callable function to set logger for any module in the repo
-def set_file_logger(config, name='', filename="run.log", level=logging.DEBUG):
+def set_file_logger(config: dict, name: str = '', filename: str = "run.log", level=logging.DEBUG):
     if config["logging"]:
         logger = logging.getLogger(name)
         logging.basicConfig(format=log_format,
@@ -39,7 +39,7 @@ def set_file_logger(config, name='', filename="run.log", level=logging.DEBUG):
         logging.disable(level=logging.CRITICAL)
 
 
-def get_logger(name):
+def get_logger(name: str):
     logger = logging.getLogger(name)
     return logger
 
