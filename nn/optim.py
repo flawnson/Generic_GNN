@@ -1,3 +1,4 @@
+""" Implement Lookahead optimizer, Cosine anenaling optimizer, etc."""
 import torch
 import numpy as np
 
@@ -30,3 +31,7 @@ class CosineAnnealingWarmRestartsOptim:
     def __init__(self, max_lr, min_lr, epochs_since_last_restart, current_epoch):
         self.eq = min_lr + (max_lr - min_lr) / 2 * (1 + np.cos(np.array([epochs_since_last_restart / current_epoch * np.pi])))
 
+
+class LookaheadScheduler:
+    def __init__(self):
+        pass
