@@ -57,12 +57,12 @@ class Holdout:
         frac_list = np.asarray(self.data_config.get("split_sizes", [0.8, 0.1, 0.1]))
 
         # Initialize empty boolean arrays
-        train_bool = np.zeros(len(self.dataset.ndata["y"]), dtype=bool)
-        test_bool = np.zeros(len(self.dataset.ndata["y"]), dtype=bool)
-        val_bool = np.zeros(len(self.dataset.ndata["y"]), dtype=bool)
+        booleans = []
+        for frac in frac_list:
+            boolean = np.zeros(len(self.dataset.ndata["y"]), dtype=bool)
+            booleans.append(boolean)
 
         class_indices = []
-
         for class_label in range(len(np.unique(self.dataset.ndata["y"])) + 1):
             mask = self.dataset.ndata["y"].numpy() == class_label
             class_indices.append(np.where(mask)[0])
@@ -89,7 +89,10 @@ class Holdout:
         test_bool[test_idx] = True
         val_bool[val_idx] = True
 
-        return {"train_mask": train_bool, "test_mask": test_bool, "val_mask": val_bool}
+        for boolean, indices in zip(booleans, [train_idx, test_idx, val_idx]):
+            boolean[indices] = True
+
+        return {"train_mask": booleans[0], "test_mask": booleans[1], "val_mask": booleans[2]}
 
     def balanced_split(self):
         """TODO: Check if split is performing properly"""

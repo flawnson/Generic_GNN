@@ -35,7 +35,7 @@ def set_file_logger(config: dict, name: str = '', filename: str = "run.log", lev
         logger.setLevel(level)
         return logger
     else:
-        print("Logging has been disabled (WARNING: Note that this also disables logging for Ray Tune's pipeline")
+        print("Logging has been disabled (WARNING: Note that this also disables logging for Ray Tune's pipeline)")
         logging.disable(level=logging.CRITICAL)
 
 

@@ -61,11 +61,11 @@ def load_model(config: dict, model: GenericGNNModel, device: torch.device) -> Ge
     # to the map_location argument in the torch.load() function.
     # In this case, the storages underlying the tensors are dynamically remapped
     # to the CPU device using the map_location argument.
-    if config.get("train_config").get("load_model", None):
+    if config.get("load_model", None):
         try:
             return model.load_state_dict(torch.load(osp.join("outputs", config["load_model"]), map_location=device))
         except:
-            RuntimeError("Pretrained model weights do not seem to fit the described model")
+            RuntimeError("Pretrained weights do not seem to fit the provided model; check if pretrained model exists")
     else:
         return model.to(device)
 

@@ -1,5 +1,5 @@
 {
-  "run_type": "benchmark",
+  "run_type": "demo",
   "dataset": "primary_labelset",
   "logging": false,
   "cuda": false,
@@ -17,10 +17,10 @@
                   "split_sizes": [0.7, 0.2, 0.1]
   },
   "train_config": {
-                   "write_summary": true,
+                   "write_summary": false,
                    "run_name": "arbitrary_run_name",
                    "save_model": "saved_model_name",
-                   "load_model": "saved_model_name",
+                   "load_model": null,
                    "model_config": {
                                     "model": "GAT",
                                     "names": ["name1, name2, name3, name4"],

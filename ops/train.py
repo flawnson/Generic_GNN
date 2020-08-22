@@ -40,7 +40,7 @@ class Trainer:
         self.model.train()
         self.optimizer.zero_grad()
         logits = self.model(self.dataset, self.dataset.ndata["x"])
-        agg_mask = np.logical_and(self.dataset.splits["trainset"], self.dataset.known_mask)
+        agg_mask = np.logical_and(self.dataset.splits["train_mask"], self.dataset.known_mask)
         weights = loss_weights(self.dataset, agg_mask, self.device) if self.train_config["weighted_loss"] else None
         loss = F.cross_entropy(logits[agg_mask], self.dataset.ndata["y"][agg_mask].long().to(self.device), weight=weights)
         loss.backward(retain_graph=True)
@@ -51,6 +51,7 @@ class Trainer:
 
     @torch.no_grad()
     def test(self):
+        # TODO: Swap individual calc of scores to scoring object
         self.model.eval()
         logits = self.model(self.dataset, self.dataset.ndata["x"])
         accs, auroc_scores, f1_scores = [], [], []
@@ -60,11 +61,17 @@ class Trainer:
             agg_mask = np.logical_and(mask[1], self.dataset.known_mask)  # Combined both masks
             pred = logits[agg_mask].max(1)[1]
 
-            accs.append((mask[0], pred.eq(self.dataset.ndata["y"][agg_mask].to(self.device)).sum().item() / agg_mask.sum().item()))
+            accs.append((mask[0], pred.eq(self.dataset.ndata["y"][agg_mask].to(self.device)).sum().item() /
+                         agg_mask.sum().item()))
             f1_scores.append((mask[0], f1_score(y_true=self.dataset.ndata["y"][agg_mask].to('cpu'),
                                       y_pred=pred.to('cpu'),
                                       average='macro')))
-            auroc_scores.append((mask[0], auroc_score(self.dataset, agg_mask, mask[1], logits, s_logits)))
+            auroc_scores.append((mask[0], auroc_score(self.train_config["scores"]["auc"],
+                                                      self.dataset,
+                                                      agg_mask,
+                                                      mask[1],
+                                                      logits,
+                                                      s_logits)))
 
         return {"acc": accs, "f1": f1_scores, "auc": auroc_scores}
 
@@ -74,13 +81,14 @@ class Trainer:
         logits = self.model(self.dataset, self.dataset.ndata["x"])
 
     def write(self, epoch: int, scores: dict) -> None:
+        # TODO: Fix DGLGraph not iterable error
         self.writer.add_graph(self.model, self.dataset, verbose=True)
         for score_type, score_set in scores.items():
             for score_split in score_set:
                 self.writer.add_scalar(score_type + score_split[0], score_split[1], epoch)
         self.writer.flush()
 
-    def get_model(self):
+    def get_model(self) -> GenericGNNModel:
         # Models are defined in DGL_models.py. You may build you custom layer with DGL in DGL_layers.py or use an
         # Off-the-shelf layer from DGL. You many define a list of layer types to use in the json config file, otherwise
         # you must provide a string with the name of the layer to use for the entire model
@@ -91,7 +99,7 @@ class Trainer:
         else:
             raise NotImplementedError(f"{self.train_config['model_config']['model']} is not a model")  # Add to logger when implemented
 
-        load_model(self.train_config, model, self.device)
+        return load_model(self.train_config, model, self.device)
 
     def run_train(self):
         for epoch in range(self.train_config["epochs"]):

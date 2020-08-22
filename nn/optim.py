@@ -6,7 +6,7 @@ from torch.optim.optimizer import Optimizer
 
 
 class _LRScheduler(object):
-    """ Heavily inspired by PyTorch's learnign rate scheduler code, used here for testing purposes """
+    """ Heavily inspired by PyTorch's learning rate scheduler code, used here for testing purposes """
     def __init__(self, optimizer, last_epoch=None):
         if not isinstance(optimizer, Optimizer):
             raise TypeError('{} is not an Optimizer'.format(type(optimizer).__name__))
@@ -29,9 +29,8 @@ class _LRScheduler(object):
 class CosineAnnealingWarmRestartsOptim:
     """Derived from https://arxiv.org/pdf/1608.03983.pdf eqn. 5, work in progress"""
     def __init__(self, max_lr, min_lr, epochs_since_last_restart, current_epoch):
-        self.eq = min_lr + (max_lr - min_lr) / 2 * (1 + np.cos(np.array([epochs_since_last_restart / current_epoch * np.pi])))
+        self.max_lr = max_lr
+        self.min_lr = min_lr
 
-
-class LookaheadScheduler:
-    def __init__(self):
-        pass
+    def get_lr(self):
+        self.eq = self.min_lr + (self.max_lr - self.min_lr) / 2 * (1 + np.cos(np.array([self.since_epoch / self.cur_epoch * np.pi])))

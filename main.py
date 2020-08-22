@@ -34,7 +34,7 @@ if __name__ == "__main__":
     json_data: dict = json.load(open(args.config))
     set_file_logger(json_data)
     # DGL Overrides torch.tensor.to() and implements it's own to() method for its graph objects
-    device = torch.device("cuda" if not args.device and torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if json_data["cuda"] and torch.cuda.is_available() else "cpu")
     log.info(f"Using {device} for compute")
 
     # See https://discuss.pytorch.org/t/what-does-torch-backends-cudnn-benchmark-do/5936
