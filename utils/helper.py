@@ -69,3 +69,19 @@ def load_model(config: dict, model: GenericGNNModel, device: torch.device) -> Ge
     else:
         return model.to(device)
 
+# split_indices = []
+# split_lens = []
+# leftover = None
+# for index_list in class_indices:
+#     indices = []
+#     for frac in frac_list:
+#         split_len: int = int(round(frac * len(index_list)))
+#         split_lens.append(split_len)
+#
+#     for split_len in split_lens:
+#         split_idx = np.random.choice(leftover, split_len, replace=False)
+#         leftover = np.setdiff1d(leftover, split_idx)
+#         indices += split_idx.tolist()
+#
+#     split_indices.append(indices)
+#

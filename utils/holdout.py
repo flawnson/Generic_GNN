@@ -54,7 +54,7 @@ class Holdout:
         Temporary method to split dataset until rest of codebase is complete
         :return: train, test, val for DGL object
         """
-        frac_list = np.asarray(self.data_config.get("split_sizes", [0.8, 0.1, 0.1]))
+        frac_list = np.asarray(list(self.data_config.get("split_sizes", [0.8, 0.1, 0.1]).values()))
 
         # Initialize empty boolean arrays
         booleans = []
@@ -85,10 +85,6 @@ class Holdout:
             val_idx += val_indices.tolist()
 
         # Change all False to True at indices
-        train_bool[train_idx] = True
-        test_bool[test_idx] = True
-        val_bool[val_idx] = True
-
         for boolean, indices in zip(booleans, [train_idx, test_idx, val_idx]):
             boolean[indices] = True
 
@@ -97,7 +93,7 @@ class Holdout:
     def balanced_split(self):
         """TODO: Check if split is performing properly"""
         """TODO: Refactor to clean method"""
-        frac_list = np.asarray(self.data_config.get("split_sizes", [0.8, 0.1, 0.1]))
+        frac_list = np.asarray(list(self.data_config.get("split_sizes", [0.8, 0.1, 0.1]).values()))
 
         # Initialize empty boolean arrays
         booleans = []
@@ -111,26 +107,29 @@ class Holdout:
             class_indices.append(np.where(mask)[0])
 
         split_indices = []
-        mark = 0
-        for frac in frac_list:
+        split_lens = []
+        leftover = class_indices[0]
+
+        for index_list in class_indices:
+            for frac in frac_list:
+                split_len: int = int(round(frac * len(index_list)))
+                split_lens.append(split_len)
+
+        for index_list in class_indices:
             indices = []
-            leftover = class_indices[mark]
 
-            for index_list in class_indices:
-                split_len = int(round(frac * len(leftover)))
-
+            for split_len in split_lens:
                 split_idx = np.random.choice(leftover, split_len, replace=False)
                 leftover = np.setdiff1d(leftover, split_idx)
                 indices += split_idx.tolist()
 
             split_indices.append(indices)
-            mark += 1
 
         # Change all False to True at indices
         for boolean, indices in zip(booleans, split_indices):
             boolean[indices] = True
 
-        return booleans
+        return {split_name: split_idx for split_name, split_idx in zip(self.data_config["split_sizes"].keys(), booleans)}
 
     def indices_to_mask(self, index_lists: list) -> list:
         masks = []

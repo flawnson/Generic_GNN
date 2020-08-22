@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     # You must use balanced split (auroc doesn't work otherwise)
     log.info("Creating splitsets")
-    dataset.splits = Holdout(json_data["data_config"], dataset, bool_mask=True).temp_split()
+    dataset.splits = Holdout(json_data["data_config"], dataset, bool_mask=True).balanced_split()
 
     # Runtype pipelines
     log.info(f"Executing {json_data['run_type']} pipeline")

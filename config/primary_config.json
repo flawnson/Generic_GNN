@@ -14,7 +14,9 @@
                   "dummy_features": false,
                   "weight_classes": false,
                   "shuffle": true,
-                  "split_sizes": [0.7, 0.2, 0.1]
+                  "split_sizes": {"train_split": 0.7,
+                                  "valid_split": 0.2,
+                                  "test_split": 0.1}
   },
   "train_config": {
                    "write_summary": false,
