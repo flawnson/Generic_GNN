@@ -107,22 +107,25 @@ class Holdout:
             class_indices.append(np.where(mask)[0])
 
         split_indices = []
-        split_lens = []
-        leftover = class_indices[0]
+        proxy = []
 
         for index_list in class_indices:
+            split_lens = []
             for frac in frac_list:
                 split_len: int = int(round(frac * len(index_list)))
                 split_lens.append(split_len)
+            proxy.append(split_lens)
 
         for index_list in class_indices:
             indices = []
-
-            for split_len in split_lens:
-                split_idx = np.random.choice(leftover, split_len, replace=False)
-                leftover = np.setdiff1d(leftover, split_idx)
-                indices += split_idx.tolist()
-
+            for split_len in proxy:
+                mark = 0
+                leftover = class_indices[mark]
+                for split in split_len:
+                    split_idx = np.random.choice(leftover, split, replace=False)
+                    leftover = np.setdiff1d(leftover, split)
+                    indices += split_idx.tolist()
+                    mark += 1
             split_indices.append(indices)
 
         # Change all False to True at indices

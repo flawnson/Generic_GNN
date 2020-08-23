@@ -34,3 +34,7 @@ class CosineAnnealingWarmRestartsOptim:
 
     def get_lr(self):
         self.eq = self.min_lr + (self.max_lr - self.min_lr) / 2 * (1 + np.cos(np.array([self.since_epoch / self.cur_epoch * np.pi])))
+
+
+class StepDecayOptim:
+    pass
