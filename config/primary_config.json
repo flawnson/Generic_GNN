@@ -10,6 +10,7 @@
                   "edge_features_file": null,
                   "label_file": "quinary_labels.csv",
                   "label_names": ["gene", "label"],
+                  "visualize": true,
                   "semi-supervised": true,
                   "dummy_features": false,
                   "weight_classes": false,
@@ -64,5 +65,10 @@
 
   },
   "benchmark_config": {
+  },
+  "visual_config": {
+                    "subset": "nodes",
+                    "size": 0.5,
+                    "kwargs": {"arg_name": "arg"}
   }
 }

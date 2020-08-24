@@ -38,5 +38,5 @@ class VisualizeData(object):
 
     def draw(self):
         """ Drawing with built in networkx method """
-        nx.drawing.draw_networkx(self.graph)
+        nx.drawing.draw_networkx(self.graph, **self.visual_config["kwargs"])
 

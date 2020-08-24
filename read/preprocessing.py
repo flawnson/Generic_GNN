@@ -10,6 +10,7 @@ import torch
 import json
 import dgl
 
+from utils.visualize import VisualizeData
 from abc import abstractmethod, ABC
 
 
@@ -22,7 +23,8 @@ class GenericDataset(ABC):
     @abstractmethod
     def __init__(self, config: dict):
         super(GenericDataset, self).__init__()
-        self.data_config = config
+        self.config = config
+        self.data_config = self.config["data_config"]
         self.dataset = self.preprocessing()
 
     def get_edges(self) -> nx.DiGraph:
@@ -96,6 +98,8 @@ class GenericDataset(ABC):
     def preprocessing(self) -> dgl.graph:
         # TODO: Check if node list is getting rearranged during conversion to dgl graph object
         nx_graph = self.intersection()
+        if self.data_config["visualize"]:
+            VisualizeData(self.config["visual_config"], nx_graph)
         dgl_graph = dgl.DGLGraph()
         dgl_graph.from_networkx(nx_graph, node_attrs=nx_graph.node_data + ["y"], edge_attrs=nx_graph.edge_data)
         # dgl_graph.y = nx_graph.nodes("y")  # PyG's preferred method of adding attributes to object class

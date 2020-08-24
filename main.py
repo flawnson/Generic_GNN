@@ -49,13 +49,13 @@ if __name__ == "__main__":
     log.info(f"Creating {json_data['dataset']} dataset")
     dataset: GenericDataset = None
     if json_data["dataset"] == "primary_labelset":
-        dataset = PrimaryLabelset(json_data["data_config"]).dataset.to(device)
+        dataset = PrimaryLabelset(json_data).dataset.to(device)
     else:
         raise NotImplementedError(f"{json_data['dataset']} is not a dataset")  # Add to logger when implemented
 
     # You must use balanced split (auroc doesn't work otherwise)
     log.info("Creating splitsets")
-    dataset.splits = Holdout(json_data["data_config"], dataset, bool_mask=True).balanced_split()
+    dataset.splits = Holdout(json_data).balanced_split()
 
     # Runtype pipelines
     log.info(f"Executing {json_data['run_type']} pipeline")
