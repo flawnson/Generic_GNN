@@ -6,6 +6,7 @@
     """
 
 # TODO: Fix holdout methods
+# TODO: Dockerize the project (create dockerfile and dockerignore, push to dockerhub)
 # TODO: Implement tuning for model and layer sizes
 # TODO: Implement optimizer/loss customization
 # TODO: Implement basic multi-GPU support
