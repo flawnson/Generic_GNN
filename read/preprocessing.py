@@ -99,7 +99,7 @@ class GenericDataset(ABC):
         # TODO: Check if node list is getting rearranged during conversion to dgl graph object
         nx_graph = self.intersection()
         if self.data_config["visualize"]:
-            VisualizeData(self.config["visual_config"], nx_graph)
+            VisualizeData(self.config["visual_config"], nx_graph).draw()
         dgl_graph = dgl.DGLGraph()
         dgl_graph.from_networkx(nx_graph, node_attrs=nx_graph.node_data + ["y"], edge_attrs=nx_graph.edge_data)
         # dgl_graph.y = nx_graph.nodes("y")  # PyG's preferred method of adding attributes to object class

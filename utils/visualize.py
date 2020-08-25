@@ -1,15 +1,16 @@
 """ This file is for code related to visualizing the run pipelines and the dataset """
 import numpy as np
 import networkx as nx
+from utils.logger import set_file_logger, log
 
 
 class VisualizeData(object):
-    def __init__(self, config, dataset):
+    def __init__(self, config: dict, dataset: nx.Graph):
         self.visual_config = config["visual_config"]
         self.dataset = dataset
         self.graph = self.dataset if not self.visual_config["subset"] else self.subset()
 
-    def _get_graph_size(self, graph_item) -> np.array:
+    def _get_graph_size(self, graph_item: nx.Graph) -> np.array:
         """ Private method to get the graph size to be drawn """
         if isinstance(self.visual_config["size"], int):
             subset_graph = np.random.choice(graph_item, self.visual_config["size"])
@@ -32,7 +33,8 @@ class VisualizeData(object):
             subset = self._get_graph_size(graph_item)
             graph = nx.Graph.edge_subgraph(subset)
         else:
-            raise NotImplementedError("Desired datatype not understood")
+            log.info("Subset size not understood, using entire graph")
+            graph = self.dataset
 
         return graph
 
