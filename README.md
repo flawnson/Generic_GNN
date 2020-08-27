@@ -16,7 +16,14 @@ conda create -n env_name python=3.7 anaconda
 source activate env_name
 ```
 
-Then you'll need to run setup.py
+Before cloning into this repository:
+```shell
+git clone https://github.com/flawnson/Generic_GNN.git
+OR
+pip install git+https://github.com/flawnson/Generic_GNN.git
+```
+
+Then you can run setup.py
 ```shell
 python setup.py
 ```
