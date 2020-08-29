@@ -1,6 +1,7 @@
 """ This file is for all split unittests for the project """
 
 import unittest
+import numpy as np
 
 from utils.holdout import Holdout
 from read.preprocessing import GenericDataset, PrimaryLabelset
@@ -13,6 +14,7 @@ class TestSplitMethods(unittest.TestCase):
 
     def test_intersection(self):
         self.assertEqual(Holdout().stratified_split(), 'FOO')
+        int(np.unique([sum(tup) for tup in list(zip(*split_method_output))]))
 
     def test_balanced(self):
         self.assertTrue('FOO'.isupper())

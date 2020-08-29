@@ -94,7 +94,7 @@ class Holdout:
     def stratified_split(self) -> dict:
         # See SciKitLearn's documentation for implementation details (note that this method enforces same size splits):
         # https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html#sklearn.model_selection.StratifiedKFold
-        split = StratifiedKFold(n_splits=len(self.data_config["splits"]), shuffle=True)
+        split = StratifiedKFold(n_splits=len(self.data_config["splits"]), shuffle=self.data_config["shuffle"])
         # test = split.get_n_splits(self.dataset.ndata["x"], self.dataset.ndata["y"])
         masks = list(split._iter_test_masks(self.dataset.ndata["x"], self.dataset.ndata["y"]))
 
@@ -105,7 +105,7 @@ class Holdout:
             # Naive split sizes
             return self.naive_split()
         elif self.data_config["split_type"] == "tri":
-            # Any size splits of evenly ditributed classes, but fixed at 3 sets
+            # Any size splits of evenly distributed classes, but fixed at 3 sets
             return self.tri_split()
         elif self.data_config["split_type"] == "stratified":
             # Any number of sets of evenly distributed classes, but equal split sizes

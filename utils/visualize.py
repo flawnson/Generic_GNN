@@ -1,7 +1,7 @@
 """ This file is for code related to visualizing the run pipelines and the dataset """
 import numpy as np
 import networkx as nx
-from utils.logger import set_file_logger, log
+from utils.logger import log
 
 
 class VisualizeData(object):
@@ -27,11 +27,11 @@ class VisualizeData(object):
         if self.visual_config["subset"] == "nodes":
             graph_item = self.dataset.nodes()
             subset = self._get_graph_size(graph_item)
-            graph = nx.Graph.subgraph(subset)
+            graph = self.dataset.subgraph(subset)
         elif self.visual_config["subset"] == "edges":
             graph_item = self.dataset.edges()
             subset = self._get_graph_size(graph_item)
-            graph = nx.Graph.edge_subgraph(subset)
+            graph = self.dataset.edge_subgraph(subset)
         else:
             log.info("Subset size not understood, using entire graph")
             graph = self.dataset
