@@ -9,14 +9,21 @@ Documentation follows [Google's Python style guidelines](https://google.github.i
 Stored in directory.txt (use ```Get-ChildItem | tree /F > foo.txt``` in PowerShell to create your own)
 
 # Getting Started
-## Setup
+## Conda Env Setup
 First you'll want to create a new conda (or pip) env with Python 3.7
 ```shell
 conda create -n env_name python=3.7 anaconda
 source activate env_name
 ```
 
-Then you'll need to run setup.py
+Before cloning into this repository:
+```shell
+git clone https://github.com/flawnson/Generic_GNN.git
+OR
+pip install git+https://github.com/flawnson/Generic_GNN.git
+```
+
+Then you can run setup.py
 ```shell
 python setup.py
 ```
@@ -42,6 +49,19 @@ tensorboard --logdir=logs/GAT_tuning/tune_model
 ```
 
 None of the above will work without the correct data files, all of which are not publically available as of currently.
+
+## Docker Container Setup
+Change directories into the one with `Dockerfile` and run (add tags as necessary):
+```shell
+docker build .
+```
+
+Copy the container ID and run the container by executing:
+```shell
+docker run -p port_number:8000 container_id
+```
+
+Be sure to stop (or kill if necessary) the container when not in use.
 
 # Acknowledgements
 To my mentors and my friends whom have taught and inspired me all these years.
