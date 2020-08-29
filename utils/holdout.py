@@ -9,7 +9,7 @@ from sklearn.model_selection import KFold, StratifiedKFold
 
 
 class Holdout:
-    def __init__(self, data_config: dict, dataset, bool_mask=True):
+    def __init__(self, config: dict, dataset, bool_mask=True):
         """ Class for sequestering splits for training and validation
 
         Args:
@@ -22,16 +22,14 @@ class Holdout:
 
         """
         super(Holdout, self)
-        self.data_config = data_config
+        self.config = config
+        self.data_config = self.config["data_config"]
         self.dataset = dataset
         self.bool_mask = bool_mask
 
     def split(self) -> list:
-        frac_list = self.data_config.get("split_sizes", [0.8, 0.1, 0.1])
-
-        frac_list = np.asarray(frac_list)
-        assert np.allclose(np.sum(frac_list), 1.), 'Expected frac_list to sum to 1, got {:.4f}'.format(
-            np.sum(frac_list))
+        frac_list = np.asarray(list(self.data_config.get("splits", {"trainset": 0.8, "validset": 0.1, "testset": 0.1}).values()))
+        assert np.allclose(np.sum(frac_list), 1.), f'Expected frac_list to sum to 1, got {np.sum(frac_list)}'
 
         num_data = len(self.dataset)
         lengths = (num_data * frac_list).astype(int)
@@ -50,12 +48,13 @@ class Holdout:
             return [Subset(self.dataset, indices[offset - length:offset]) for offset, length in
                     zip(accumulate(lengths), lengths)]
 
-    def temp_split(self):
+    def tri_split(self):
         """
         Temporary method to split dataset until rest of codebase is complete
         :return: train, test, val for DGL object
         """
-        frac_list = np.asarray(list(self.data_config.get("split_sizes", [0.8, 0.1, 0.1]).values()))
+        frac_list = np.asarray(list(self.data_config.get("splits", {"trainset": 0.8, "validset": 0.1, "testset": 0.1}).values()))
+        assert np.allclose(np.sum(frac_list), 1.), f'Expected frac_list to sum to 1 or less, got {np.sum(frac_list)}'
 
         # Initialize empty boolean arrays
         booleans = []
@@ -89,11 +88,14 @@ class Holdout:
         for boolean, indices in zip(booleans, [train_idx, test_idx, val_idx]):
             boolean[indices] = True
 
-        return {"train_mask": booleans[0], "test_mask": booleans[1], "val_mask": booleans[2]}
+        # return {"train_mask": booleans[0], "test_mask": booleans[1], "val_mask": booleans[2]}
+        return dict(zip(self.data_config["splits"], booleans))
 
-    def balanced_split(self):
+    def stratified_split(self):
+        # See SciKitLearn's documentation for implementation details (note that this method enforces same size splits):
+        # https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html#sklearn.model_selection.StratifiedKFold
         split = StratifiedKFold(n_splits=10, shuffle=True)
         # test = split.get_n_splits(self.dataset.ndata["x"], self.dataset.ndata["y"])
-        test = list(split._iter_test_masks(self.dataset.ndata["x"], self.dataset.ndata["y"]))
+        masks = list(split._iter_test_masks(self.dataset.ndata["x"], self.dataset.ndata["y"]))
 
-        return test
+        return dict(zip(self.data_config["splits"].keys(), masks))

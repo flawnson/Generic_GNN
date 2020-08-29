@@ -1,7 +1,6 @@
 {
   "run_type": "demo",
   "dataset": "primary_labelset",
-  "testing": true,
   "logging": false,
   "cuda": false,
   "data_config": {
@@ -16,9 +15,9 @@
                   "dummy_features": false,
                   "weight_classes": false,
                   "shuffle": true,
-                  "split_sizes": {"train_split": 0.7,
-                                  "valid_split": 0.2,
-                                  "test_split": 0.1}
+                  "splits": {"trainset": 0.7,
+                             "validset": 0.2,
+                             "testset": 0.1}
   },
   "train_config": {
                    "write_summary": false,

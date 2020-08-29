@@ -46,11 +46,11 @@ def tune_model(config: dict) -> None:
         model.train()
         optimizer.zero_grad()
         logits = model(dataset, dataset.ndata["x"])
-        alpha = np.logical_and(dataset.splits.get('train_mask'), dataset.known_mask)
-        imb_Wc = torch.bincount(dataset.ndata["y"][alpha]).float().clamp(min=1e-10, max=1e10) / dataset.ndata["y"][alpha].shape[0]
+        agg_mask = np.logical_and(list(self.dataset.splits.values())[0], self.dataset.known_mask)
+        imb_Wc = torch.bincount(dataset.ndata["y"][agg_mask]).float().clamp(min=1e-10, max=1e10) / dataset.ndata["y"][agg_mask].shape[0]
         weights = (1 / imb_Wc) / (sum(1 / imb_Wc))
 
-        loss = F.cross_entropy(logits[alpha], dataset.ndata["y"][alpha], weight=weights)
+        loss = F.cross_entropy(logits[agg_mask], dataset.ndata["y"][agg_mask], weight=weights)
         _loss = loss.clone().detach().to("cpu").item()
 
         # if config.get("early_stopping_loss"):
@@ -72,18 +72,18 @@ def tune_model(config: dict) -> None:
 
         for mask in dataset.splits.values():
             agg_mask = np.logical_and(mask, dataset.known_mask)
-            pred = logits[alpha].max(1)[1]
+            pred = logits[agg_mask].max(1)[1]
 
-            accs.append(pred.eq(dataset.ndata["y"][alpha]).sum().item() / alpha.sum().item())
-            f1_scores.append(f1_score(y_true=dataset.ndata["y"][alpha].to('cpu'),
+            accs.append(pred.eq(dataset.ndata["y"][agg_mask]).sum().item() / agg_mask.sum().item())
+            f1_scores.append(f1_score(y_true=dataset.ndata["y"][agg_mask].to('cpu'),
                                       y_pred=pred.to('cpu'),
                                       average='macro'))
             auroc_scores.append(auroc_score(dataset, agg_mask, mask, logits, s_logits))
 
             if epoch == config.get("epochs"):  # Only calc AUROC on final epoch for computational efficiency purposes
                 if np.unique(dataset.ndata["y"].numpy()) == 2:
-                    auroc_scores.append(roc_auc_score(y_true=dataset.ndata["y"][alpha].to('cpu').numpy(),
-                                                      y_score=np.amax(s_logits[alpha].to('cpu').data.numpy(), axis=1),
+                    auroc_scores.append(roc_auc_score(y_true=dataset.ndata["y"][agg_mask].to('cpu').numpy(),
+                                                      y_score=np.amax(s_logits[agg_mask].to('cpu').data.numpy(), axis=1),
                                                       average=None,
                                                       multi_class=None))
                 else:
@@ -92,8 +92,8 @@ def tune_model(config: dict) -> None:
                                                    arr=logits[:, 1:].to('cpu').data.numpy())
                     s_logits = F.softmax(input=torch.from_numpy(m_logits), dim=1)  # Recalc of s_logits from outer scope
 
-                    auroc_scores.append(roc_auc_score(y_true=data.ndata["y"][alpha].to('cpu').numpy(),
-                                                      y_score=s_logits[alpha],
+                    auroc_scores.append(roc_auc_score(y_true=data.ndata["y"][agg_mask].to('cpu').numpy(),
+                                                      y_score=s_logits[agg_mask],
                                                       average=config.get('auroc_average'),
                                                       multi_class=config.get('auroc_versus')))
 

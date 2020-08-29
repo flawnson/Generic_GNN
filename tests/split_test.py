@@ -12,7 +12,7 @@ class TestSplitMethods(unittest.TestCase):
         pass
 
     def test_intersection(self):
-        self.assertEqual(Holdout().balanced_split(), 'FOO')
+        self.assertEqual(Holdout().stratified_split(), 'FOO')
 
     def test_balanced(self):
         self.assertTrue('FOO'.isupper())

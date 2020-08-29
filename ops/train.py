@@ -40,7 +40,7 @@ class Trainer:
         self.model.train()
         self.optimizer.zero_grad()
         logits = self.model(self.dataset, self.dataset.ndata["x"])
-        agg_mask = np.logical_and(self.dataset.splits["train_mask"], self.dataset.known_mask)
+        agg_mask = np.logical_and(list(self.dataset.splits.values())[0], self.dataset.known_mask)
         weights = loss_weights(self.dataset, agg_mask, self.device) if self.train_config["weighted_loss"] else None
         loss = F.cross_entropy(logits[agg_mask], self.dataset.ndata["y"][agg_mask].long().to(self.device), weight=weights)
         loss.backward(retain_graph=True)
