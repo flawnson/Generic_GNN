@@ -6,7 +6,6 @@
     """
 
 # TODO: Fix holdout methods
-# TODO: Dockerize the project (create dockerfile and dockerignore, push to dockerhub)
 # TODO: Implement tuning for model and layer sizes
 # TODO: Implement optimizer/loss customization
 # TODO: Implement basic multi-GPU support
@@ -56,7 +55,7 @@ if __name__ == "__main__":
 
     # You must use balanced split (auroc doesn't work otherwise)
     log.info("Creating splitsets")
-    dataset.splits = Holdout(json_data).balanced_split()
+    dataset.splits = Holdout(json_data, dataset).balanced_split()
 
     # Runtype pipelines
     log.info(f"Executing {json_data['run_type']} pipeline")

@@ -16,7 +16,7 @@ class VisualizeData(object):
             subset_graph = np.random.choice(graph_item, self.visual_config["size"])
         elif isinstance(self.visual_config["size"], float):
             size: int = self.visual_config["size"] * len(graph_item)
-            subset_graph = np.random.choice(graph_item, size)
+            subset_graph = np.random.choice(graph_item, int(size))
         else:
             raise TypeError("Defined size type not permitted")
 

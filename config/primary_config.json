@@ -1,6 +1,7 @@
 {
   "run_type": "demo",
   "dataset": "primary_labelset",
+  "testing": true,
   "logging": false,
   "cuda": false,
   "data_config": {
@@ -10,7 +11,7 @@
                   "edge_features_file": null,
                   "label_file": "quinary_labels.csv",
                   "label_names": ["gene", "label"],
-                  "visualize": true,
+                  "visualize": false,
                   "semi-supervised": true,
                   "dummy_features": false,
                   "weight_classes": false,
