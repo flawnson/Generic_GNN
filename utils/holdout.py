@@ -27,7 +27,7 @@ class Holdout:
         self.dataset = dataset
         self.bool_mask = bool_mask
 
-    def split(self) -> list:
+    def naive_split(self) -> dict:
         frac_list = np.asarray(list(self.data_config.get("splits", {"trainset": 0.8, "validset": 0.1, "testset": 0.1}).values()))
         assert np.allclose(np.sum(frac_list), 1.), f'Expected frac_list to sum to 1, got {np.sum(frac_list)}'
 
@@ -45,8 +45,8 @@ class Holdout:
                                          zip(accumulate(lengths), lengths)])
         else:
             # https://docs.dgl.ai/en/0.4.x/api/python/data.html?highlight=subset#dgl.data.utils.Subset
-            return [Subset(self.dataset, indices[offset - length:offset]) for offset, length in
-                    zip(accumulate(lengths), lengths)]
+            return dict(zip(self.data_config["splits"].keys(), [Subset(self.dataset, indices[offset - length:offset])
+                            for offset, length in zip(accumulate(lengths), lengths)]))
 
     def tri_split(self):
         """
@@ -94,8 +94,19 @@ class Holdout:
     def stratified_split(self):
         # See SciKitLearn's documentation for implementation details (note that this method enforces same size splits):
         # https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html#sklearn.model_selection.StratifiedKFold
-        split = StratifiedKFold(n_splits=10, shuffle=True)
+        split = StratifiedKFold(n_splits=len(self.data_config["splits"]), shuffle=True)
         # test = split.get_n_splits(self.dataset.ndata["x"], self.dataset.ndata["y"])
         masks = list(split._iter_test_masks(self.dataset.ndata["x"], self.dataset.ndata["y"]))
 
         return dict(zip(self.data_config["splits"].keys(), masks))
+
+    def split(self) -> dict:
+        if self.data_config["split_type"] == "naive":
+            # Naive split sizes
+            return self.naive_split()
+        elif self.data_config["split_type"] == "tri":
+            # Any size splits of evenly ditributed classes, but fixed at 3 sets
+            return self.tri_split()
+        elif self.data_config["split_type"] == "stratified":
+            # Any number of sets of evenly distributed classes, but equal split sizes
+            return self.stratified_split()

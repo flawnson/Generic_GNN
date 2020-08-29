@@ -15,8 +15,10 @@
                   "dummy_features": false,
                   "weight_classes": false,
                   "shuffle": true,
+                  "split_type": "stratified",
                   "splits": {"trainset": 0.7,
                              "validset": 0.2,
+                             "newset": 0.2,
                              "testset": 0.1}
   },
   "train_config": {
