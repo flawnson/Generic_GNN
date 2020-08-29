@@ -91,7 +91,7 @@ class Holdout:
         # return {"train_mask": booleans[0], "test_mask": booleans[1], "val_mask": booleans[2]}
         return dict(zip(self.data_config["splits"], booleans))
 
-    def stratified_split(self):
+    def stratified_split(self) -> dict:
         # See SciKitLearn's documentation for implementation details (note that this method enforces same size splits):
         # https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html#sklearn.model_selection.StratifiedKFold
         split = StratifiedKFold(n_splits=len(self.data_config["splits"]), shuffle=True)
