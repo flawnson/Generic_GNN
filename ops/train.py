@@ -10,6 +10,7 @@ import dgl
 
 from nn.DGL_models import GenericGNNModel, GNNModel
 from utils.helper import loss_weights, auroc_score, save_model, pretty_print, load_model
+from utils.scoring import Scores
 from read.preprocessing import GenericDataset
 from torch.utils.tensorboard import SummaryWriter
 from sklearn.metrics import f1_score
@@ -51,29 +52,34 @@ class Trainer:
 
     @torch.no_grad()
     def test(self):
-        # TODO: Swap individual calc of scores to scoring object
         self.model.eval()
         logits = self.model(self.dataset, self.dataset.ndata["x"])
         accs, auroc_scores, f1_scores = [], [], []
         s_logits = F.softmax(input=logits[:, 1:], dim=1)  # To account for the unknown class
 
-        for mask in self.dataset.splits.items():
-            agg_mask = np.logical_and(mask[1], self.dataset.known_mask)  # Combined both masks
-            pred = logits[agg_mask].max(1)[1]
-
-            accs.append((mask[0], pred.eq(self.dataset.ndata["y"][agg_mask].to(self.device)).sum().item() /
-                         agg_mask.sum().item()))
-            f1_scores.append((mask[0], f1_score(y_true=self.dataset.ndata["y"][agg_mask].to('cpu'),
-                                      y_pred=pred.to('cpu'),
-                                      average='macro')))
-            auroc_scores.append((mask[0], auroc_score(self.train_config["scores"]["auc"],
-                                                      self.dataset,
-                                                      agg_mask,
-                                                      mask[1],
-                                                      logits,
-                                                      s_logits)))
-
-        return {"acc": accs, "f1": f1_scores, "auc": auroc_scores}
+        for mask in self.dataset.splits.values():
+            # agg_mask = np.logical_and(mask[1], self.dataset.known_mask)  # Combined both masks
+            scores = Scores(self.train_config.get("scores", {"acc": None, "f1": ["macro"], "auc": ["macro", "ovo"]}),
+                            self.dataset,
+                            logits,
+                            mask,
+                            self.dataset.known_mask).score()
+            # pred = logits[agg_mask].max(1)[1]
+            #
+            # accs.append((mask[0], pred.eq(self.dataset.ndata["y"][agg_mask].to(self.device)).sum().item() /
+            #              agg_mask.sum().item()))
+            # f1_scores.append((mask[0], f1_score(y_true=self.dataset.ndata["y"][agg_mask].to('cpu'),
+            #                           y_pred=pred.to('cpu'),
+            #                           average='macro')))
+            # auroc_scores.append((mask[0], auroc_score(self.train_config["scores"]["auc"],
+            #                                           self.dataset,
+            #                                           agg_mask,
+            #                                           mask[1],
+            #                                           logits,
+            #                                           s_logits)))
+        #
+        # return {"acc": accs, "f1": f1_scores, "auc": auroc_scores}
+        return scores
 
     def pred(self):
         # TODO: Implement prediction method and logging

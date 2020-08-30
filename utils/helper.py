@@ -7,6 +7,7 @@ import torch.nn.functional as F
 
 from nn.DGL_models import GenericGNNModel
 from sklearn.metrics import roc_auc_score
+from collections.abc import Iterable
 from torch.utils.tensorboard import SummaryWriter
 
 
@@ -20,7 +21,7 @@ def loss_weights(dataset, agg_mask: np.ndarray, device: torch.device) -> torch.t
     return weights.to(device)
 
 
-def auroc_score(params: dict, dataset, agg_mask: np.ndarray, split_mask, logits: torch.tensor, s_logits) -> float:
+def auroc_score(params: list, dataset, agg_mask: np.ndarray, split_mask, logits: torch.tensor, s_logits) -> float:
     """ Logic for calculating roc_auc_score using sklearn (different configurations needed depending on the labelset
         and task type """
     if len(np.unique(dataset.ndata["y"].numpy())) == 2:
@@ -46,9 +47,14 @@ def auroc_score(params: dict, dataset, agg_mask: np.ndarray, split_mask, logits:
 def pretty_print(scores: dict) -> None:
     # Function to use for printing model scores in training pipeline
     for score_type, score_set in scores.items():
-        for score_split in score_set:
-            print(f"{score_type + '-' + score_split[0]}: {round(score_split[1], 3)}")
-        print("-" * 10)
+        try:
+            for score_split in score_set:
+                print(f"{score_type + '-' + score_split[0]}: {round(score_split[1], 3)}")
+            print("-" * 10)
+        except TypeError:
+            for score_split in score_set:
+                print(f"{score_type + '-' + score_split[0]}: {score_split[1]}")
+            print("-" * 10)
 
 
 def save_model(config: dict, epoch: int, model: GenericGNNModel) -> None:
