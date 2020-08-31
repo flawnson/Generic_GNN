@@ -59,7 +59,6 @@ class Trainer:
         self.model.eval()
         logits = self.model(self.dataset, self.dataset.ndata["x"])
         score_dict = {score_type: {} for score_type, params in self.train_config.get("scores", DEFAULT_SCORES.items()).items()}
-        s_logits = F.softmax(input=logits[:, 1:], dim=1)  # To account for the unknown class
 
         for split_name, mask in self.dataset.splits.items():
             scores = Scores(self.train_config.get("scores", DEFAULT_SCORES),

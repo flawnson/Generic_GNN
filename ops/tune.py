@@ -67,40 +67,18 @@ def tune_model(config: dict) -> None:
 
         model.eval()
         logits = model(dataset, dataset.ndata["x"])
-        accs, auroc_scores, f1_scores = [], [], []
-        s_logits = F.softmax(input=logits[:, 1:], dim=1)
+        score_dict = {score_type: {} for score_type, params in self.train_config.get("scores", DEFAULT_SCORES.items()).items()}
 
-        for mask in dataset.splits.values():
-            agg_mask = np.logical_and(mask, dataset.known_mask)
-            pred = logits[agg_mask].max(1)[1]
+        for split_name, mask in self.dataset.splits.items():
+            scores = Scores(self.train_config.get("scores", DEFAULT_SCORES),
+                            self.dataset,
+                            logits,
+                            mask,
+                            self.dataset.known_mask).score()
 
-            accs.append(pred.eq(dataset.ndata["y"][agg_mask]).sum().item() / agg_mask.sum().item())
-            f1_scores.append(f1_score(y_true=dataset.ndata["y"][agg_mask].to('cpu'),
-                                      y_pred=pred.to('cpu'),
-                                      average='macro'))
-            auroc_scores.append(auroc_score(dataset, agg_mask, mask, logits, s_logits))
-
-            if epoch == config.get("epochs"):  # Only calc AUROC on final epoch for computational efficiency purposes
-                if np.unique(dataset.ndata["y"].numpy()) == 2:
-                    auroc_scores.append(roc_auc_score(y_true=dataset.ndata["y"][agg_mask].to('cpu').numpy(),
-                                                      y_score=np.amax(s_logits[agg_mask].to('cpu').data.numpy(), axis=1),
-                                                      average=None,
-                                                      multi_class=None))
-                else:
-                    output_mask = np.isin(list(range(0, data.ndata["y"][mask].max())), np.unique(data.ndata["y"][mask].to('cpu').numpy()))
-                    m_logits = np.apply_along_axis(func1d=lambda arr: arr[output_mask], axis=1,
-                                                   arr=logits[:, 1:].to('cpu').data.numpy())
-                    s_logits = F.softmax(input=torch.from_numpy(m_logits), dim=1)  # Recalc of s_logits from outer scope
-
-                    auroc_scores.append(roc_auc_score(y_true=data.ndata["y"][agg_mask].to('cpu').numpy(),
-                                                      y_score=s_logits[agg_mask],
-                                                      average=config.get('auroc_average'),
-                                                      multi_class=config.get('auroc_versus')))
-
-                    train_auc, test_auc, valid_auc = auroc_scores
-
-        train_acc, test_acc, valid_acc = accs
-        train_f1, test_f1, valid_f1 = f1_scores
+            # Slightly incomprehensible; renames key and assigns it to score object (either float or iterable)
+            for score_name, score in scores.items():
+                score_dict[score_name][split_name] = score
 
         early_stopper.early_stopping(train_acc, "accs", True)
         early_stopper.early_stopping(train_acc, "loss", False)
