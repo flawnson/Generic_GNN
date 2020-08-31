@@ -48,12 +48,12 @@ def pretty_print(scores: dict) -> None:
     # Function to use for printing model scores in training pipeline
     for score_type, score_set in scores.items():
         try:
-            for score_split in score_set:
-                print(f"{score_type + '-' + score_split[0]}: {round(score_split[1], 3)}")
+            for score in score_set:
+                print(f"{score_type}: {round(score, 3)}")
             print("-" * 10)
         except TypeError:
-            for score_split in score_set:
-                print(f"{score_type + '-' + score_split[0]}: {score_split[1]}")
+            for score in score_set:
+                print(f"{score_type}: {score}")
             print("-" * 10)
 
 

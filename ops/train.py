@@ -8,12 +8,16 @@ import numpy as np
 import torch
 import dgl
 
+from typing import Dict
 from nn.DGL_models import GenericGNNModel, GNNModel
 from utils.helper import loss_weights, auroc_score, save_model, pretty_print, load_model
 from utils.scoring import Scores
 from read.preprocessing import GenericDataset
 from torch.utils.tensorboard import SummaryWriter
 from sklearn.metrics import f1_score
+
+DEFAULT_SCORES = {"acc": None, "f1": ["macro"], "auc": ["macro", "ovo"]}
+WRITE_SUMMARY = False
 
 
 class Trainer:
@@ -51,19 +55,23 @@ class Trainer:
         return loss
 
     @torch.no_grad()
-    def test(self):
+    def test(self) -> Dict[str, list]:
         self.model.eval()
         logits = self.model(self.dataset, self.dataset.ndata["x"])
-        accs, auroc_scores, f1_scores = [], [], []
+        score_dict = {score_type: [] for score_type, params in self.train_config.get("scores", DEFAULT_SCORES.items()).items()}
         s_logits = F.softmax(input=logits[:, 1:], dim=1)  # To account for the unknown class
 
-        for mask in self.dataset.splits.values():
+        for split_name, mask in self.dataset.splits.items():
             # agg_mask = np.logical_and(mask[1], self.dataset.known_mask)  # Combined both masks
-            scores = Scores(self.train_config.get("scores", {"acc": None, "f1": ["macro"], "auc": ["macro", "ovo"]}),
+            scores = Scores(self.train_config.get("scores", DEFAULT_SCORES),
                             self.dataset,
                             logits,
                             mask,
                             self.dataset.known_mask).score()
+
+            for score_name, score in scores.items():
+                score_dict[score_name].append(score)
+
             # pred = logits[agg_mask].max(1)[1]
             #
             # accs.append((mask[0], pred.eq(self.dataset.ndata["y"][agg_mask].to(self.device)).sum().item() /
@@ -79,7 +87,10 @@ class Trainer:
             #                                           s_logits)))
         #
         # return {"acc": accs, "f1": f1_scores, "auc": auroc_scores}
-        return scores
+        for score_name in score_dict.keys():
+            score_dict[split_name + '-' + score_name] = score_dict.pop(score_name)
+        return score_dict
+        # return scores
 
     def pred(self):
         # TODO: Implement prediction method and logging
@@ -117,5 +128,5 @@ class Trainer:
             scores = self.test()
             pretty_print(scores)
 
-            if self.train_config.get("write_summary", False):
+            if self.train_config.get("write_summary", WRITE_SUMMARY):
                 self.write(epoch, scores)
