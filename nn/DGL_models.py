@@ -34,7 +34,7 @@ class GenericGNNModel(torch.nn.Module, ABC):
 
     @staticmethod
     def factory(sizes: dict) -> eval:
-        name = sizes.get("name")
+        name = sizes["name"]
         sizes_copy = sizes.copy()
         sizes_copy.pop("name", None)
         return eval(name)(**sizes_copy)

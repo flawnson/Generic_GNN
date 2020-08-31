@@ -68,6 +68,7 @@ class Trainer:
                             mask,
                             self.dataset.known_mask).score()
 
+            # Slightly incomprehensible; renames key and assigns it to score object (either float or iterable)
             for score_name, score in scores.items():
                 score_dict[score_name][split_name] = score
 

@@ -5,6 +5,7 @@
 import numpy as np
 import torch.nn.functional as F
 
+from typing import Dict
 from sklearn.metrics import f1_score, precision_score, recall_score, jaccard_score, confusion_matrix
 from utils.helper import auroc_score
 from read.preprocessing import GenericDataset
@@ -21,7 +22,7 @@ class Scores:
         self.s_logits = F.softmax(input=logits[:, 1:], dim=1)  # To account for the unknown class
         self.prediction = logits[self.agg_mask].max(1)[1]
 
-    def accuracy(self, params):
+    def accuracy(self, params) -> float:
         return self.prediction.eq(self.dataset.ndata["y"][self.agg_mask]).sum().item() / self.agg_mask.sum().item()
 
     def f1_score(self, params):
@@ -29,7 +30,7 @@ class Scores:
                         y_pred=self.prediction.to('cpu'),
                         average=params[0])
 
-    def auroc(self, params):
+    def auroc(self, params) -> float:
         return auroc_score(params=params,
                            dataset=self.dataset,
                            agg_mask=self.agg_mask,
@@ -37,14 +38,14 @@ class Scores:
                            logits=self.logits,
                            s_logits=self.s_logits)
 
-    def confusion_mat(self, params):
+    def confusion_mat(self, params) -> np.ndarray:
         return confusion_matrix(y_true=self.dataset.ndata["y"][self.agg_mask].to('cpu'),
                                 y_pred=self.prediction.to('cpu'),
                                 labels=None,
                                 sample_weight=None,
                                 normalize=None)
 
-    def precision(self, params):
+    def precision(self, params) -> float:
         return precision_score(y_true=self.dataset.ndata["y"][self.agg_mask].to('cpu'),
                                y_pred=self.prediction.to('cpu'),
                                labels=None,
@@ -53,7 +54,7 @@ class Scores:
                                sample_weight=None,
                                zero_division=params[1])
 
-    def recall(self, params):
+    def recall(self, params) -> float:
         return recall_score(y_true=self.dataset.ndata["y"][self.agg_mask].to('cpu'),
                             y_pred=self.prediction.to('cpu'),
                             labels=None,
@@ -62,7 +63,7 @@ class Scores:
                             sample_weight=None,
                             zero_division=params[1])
 
-    def jaccard(self, params):
+    def jaccard(self, params) -> float:
         return jaccard_score(y_true=self.dataset.ndata["y"][self.agg_mask].to('cpu'),
                              y_pred=self.prediction.to('cpu'),
                              labels=None,
@@ -70,7 +71,7 @@ class Scores:
                              average=params[0],
                              sample_weight=None)
 
-    def score(self):
+    def score(self) -> Dict[str, object]:
         scoreset = {"acc": self.accuracy(self.score_config["acc"]),
                     "auc": self.auroc(self.score_config["auc"]),
                     "f1": self.f1_score(self.score_config["f1"]),

@@ -3,9 +3,12 @@
 import numpy as np
 import torch
 
+from typing import Dict
 from dgl.data.utils import Subset
 from itertools import accumulate
 from sklearn.model_selection import KFold, StratifiedKFold
+
+DEFAULT_SPLITS = {"trainset": 0.8, "validset": 0.1, "testset": 0.1}
 
 
 class Holdout:
@@ -28,8 +31,8 @@ class Holdout:
         self.bool_mask = bool_mask
 
     def naive_split(self) -> dict:
-        frac_list = np.asarray(list(self.data_config.get("splits", {"trainset": 0.8, "validset": 0.1, "testset": 0.1}).values()))
-        assert np.allclose(np.sum(frac_list), 1.), f'Expected frac_list to sum to 1, got {np.sum(frac_list)}'
+        frac_list = np.asarray(list(self.data_config.get("splits", DEFAULT_SPLITS).values()))
+        # assert np.allclose(np.sum(frac_list), 1.), f'Expected frac_list to sum to 1, got {np.sum(frac_list)}'
 
         num_data = len(self.dataset)
         lengths = (num_data * frac_list).astype(int)
@@ -53,8 +56,7 @@ class Holdout:
         Temporary method to split dataset until rest of codebase is complete
         :return: train, test, val for DGL object
         """
-        frac_list = np.asarray(list(self.data_config.get("splits", {"trainset": 0.8, "validset": 0.1, "testset": 0.1}).values()))
-        assert np.allclose(np.sum(frac_list), 1.), f'Expected frac_list to sum to 1 or less, got {np.sum(frac_list)}'
+        frac_list = np.asarray(list(self.data_config.get("splits", DEFAULT_SPLITS).values()))
 
         # Initialize empty boolean arrays
         booleans = []
@@ -100,9 +102,9 @@ class Holdout:
 
         return dict(zip(self.data_config["splits"].keys(), masks))
 
-    def split(self) -> dict:
+    def split(self) -> Dict[str, object]:
         if self.data_config["split_type"] == "naive":
-            # Naive split sizes
+            # Naive split sizes (does not compensate for class imbalance
             return self.naive_split()
         elif self.data_config["split_type"] == "tri":
             # Any size splits of evenly distributed classes, but fixed at 3 sets
