@@ -12,3 +12,4 @@ torch-scatter==2.0.4
 torch-sparse==0.6.1
 torch-spline-conv==1.2.0
 torch-geometric==1.4.3
+jsonschema~=3.2.0

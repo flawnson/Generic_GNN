@@ -58,11 +58,10 @@ class Trainer:
     def test(self) -> Dict[str, list]:
         self.model.eval()
         logits = self.model(self.dataset, self.dataset.ndata["x"])
-        score_dict = {score_type: [] for score_type, params in self.train_config.get("scores", DEFAULT_SCORES.items()).items()}
+        score_dict = {score_type: {} for score_type, params in self.train_config.get("scores", DEFAULT_SCORES.items()).items()}
         s_logits = F.softmax(input=logits[:, 1:], dim=1)  # To account for the unknown class
 
         for split_name, mask in self.dataset.splits.items():
-            # agg_mask = np.logical_and(mask[1], self.dataset.known_mask)  # Combined both masks
             scores = Scores(self.train_config.get("scores", DEFAULT_SCORES),
                             self.dataset,
                             logits,
@@ -70,27 +69,9 @@ class Trainer:
                             self.dataset.known_mask).score()
 
             for score_name, score in scores.items():
-                score_dict[score_name].append(score)
+                score_dict[score_name][split_name] = score
 
-            # pred = logits[agg_mask].max(1)[1]
-            #
-            # accs.append((mask[0], pred.eq(self.dataset.ndata["y"][agg_mask].to(self.device)).sum().item() /
-            #              agg_mask.sum().item()))
-            # f1_scores.append((mask[0], f1_score(y_true=self.dataset.ndata["y"][agg_mask].to('cpu'),
-            #                           y_pred=pred.to('cpu'),
-            #                           average='macro')))
-            # auroc_scores.append((mask[0], auroc_score(self.train_config["scores"]["auc"],
-            #                                           self.dataset,
-            #                                           agg_mask,
-            #                                           mask[1],
-            #                                           logits,
-            #                                           s_logits)))
-        #
-        # return {"acc": accs, "f1": f1_scores, "auc": auroc_scores}
-        for score_name in score_dict.keys():
-            score_dict[split_name + '-' + score_name] = score_dict.pop(score_name)
         return score_dict
-        # return scores
 
     def pred(self):
         # TODO: Implement prediction method and logging

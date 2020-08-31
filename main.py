@@ -5,8 +5,10 @@
     Documentation is written Google-style (minus examples) with type annotations as per pep484 for most of this project
     """
 
-# TODO: Fix holdout methods
+# TODO: Use SciKitLearn's mechanisms to implement custom size splits
 # TODO: Implement tuning for model and layer sizes
+# TODO: Implement jsonschema validation for config files
+# TODO: Turn Tuning into Training wrapper
 # TODO: Implement optimizer/loss customization
 # TODO: Implement basic multi-GPU support
 # TODO: Implement basic unit testing for splits
