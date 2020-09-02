@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/product.schema.json",
+  "title": "Generic_GNN",
+  "description": "A generic GNN pipeline for rapid prototyping and development",
+  "type": "object",
+  "properties": {
+    "run_type": {
+      "description": "The type of run and pipeline to execute (one of demo, tune, or benchmark",
+      "type": "string"
+    },
+    "dataset": {
+      "description": "The type of dataset to create and use for the run",
+      "type": "string"
+    },
+    "logging": {
+      "description": "Whether or not to log info",
+      "type": "boolean",
+    },
+    "cuda": {
+      "description": "Whether or not to use a cuda device",
+      "type": "string"
+    },
+    "data_config": {
+      "type": "object",
+      "properties": {
+        "directory": {
+          "description": "The directory that stores the datefiles",
+          "type": "array"
+        },
+        "edge_list_file": {
+          "description": "The name of the edgelist file",
+          "type": "string"
+        },
+        "node_features_file": {
+          "description": "The name of the node features file",
+          "type": "string"
+        }
+      },
+      "required": ["directory", "edge_list_file", "node_features_file"]
+    },
+    "train_config": {
+      "description": "Configurations for training run",
+      "type": "object"
+    },
+    "tune_config": {
+      "description": "Configurations for tuning run",
+      "type": "object"
+    },
+    "benchmark_config": {
+      "description": "Configurations for benchmarking run",
+      "type": "object"
+    },
+    "visual_config": {
+      "description": "Configurations for visualization",
+      "type": "object"
+    }
+  },
+  "required": ["run_type", "dataset"]
+}
