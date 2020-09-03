@@ -15,7 +15,7 @@
     },
     "logging": {
       "description": "Whether or not to log info",
-      "type": "boolean",
+      "type": "boolean"
     },
     "cuda": {
       "description": "Whether or not to use a cuda device",
@@ -35,25 +35,69 @@
         "node_features_file": {
           "description": "The name of the node features file",
           "type": "string"
+        },
+        "edge_features_file": {
+          "description": "The name of the edge features file",
+          "type": "string"
+        },
+        "label_file": {
+          "description": "The name of the label file",
+          "type": "string"
+        },
+        "label_names": {
+          "description": "A list of names (file headers) for labels",
+          "type": "array"
+        },
+        "visualize": {
+          "description": "Whether or not to visualize the generated graph dataset",
+          "type": "boolean"
+        },
+        "semi-supervised": {
+          "description": "Whether or not to operate with a semi-supervised training scheme",
+          "type": "boolean"
+        },
+        "dummy_features": {
+          "description": "Whether or not to use dummy edge/node features",
+          "type": "boolean"
+        },
+        "weight_classes": {
+          "description": "Whether or not to use weighted classes (for class imbalance)",
+          "type": "boolean"
+        },
+        "shuffle": {
+          "description": "Whether or not to shuffle dataset",
+          "type": "boolean"
+        },
+        "split_type": {
+          "description": "Type of splitting mechanism to choose",
+          "type": "string"
+        },
+        "splits": {
+          "description": "A dictionary of key value pairs for split names and float values",
+          "type": "object"
         }
       },
-      "required": ["directory", "edge_list_file", "node_features_file"]
+      "required": ["directory", "edge_list_file", "node_features_file", "label_file", "label_names"]
     },
     "train_config": {
       "description": "Configurations for training run",
-      "type": "object"
+      "type": "object",
+      "required": ["run_type", "dataset"]
     },
     "tune_config": {
       "description": "Configurations for tuning run",
-      "type": "object"
+      "type": "object",
+      "required": ["run_type", "dataset"]
     },
     "benchmark_config": {
       "description": "Configurations for benchmarking run",
-      "type": "object"
+      "type": "object",
+      "required": ["run_type", "dataset"]
     },
     "visual_config": {
       "description": "Configurations for visualization",
-      "type": "object"
+      "type": "object",
+      "required": ["run_type", "dataset"]
     }
   },
   "required": ["run_type", "dataset"]

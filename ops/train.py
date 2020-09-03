@@ -58,7 +58,8 @@ class Trainer:
     def test(self) -> Dict[str, list]:
         self.model.eval()
         logits = self.model(self.dataset, self.dataset.ndata["x"])
-        score_dict = {score_type: {} for score_type, params in self.train_config.get("scores", DEFAULT_SCORES.items()).items()}
+        score_dict = {score_type: {} for score_type, params in
+                      self.train_config.get("scores", DEFAULT_SCORES.items()).items()}
 
         for split_name, mask in self.dataset.splits.items():
             scores = Scores(self.train_config.get("scores", DEFAULT_SCORES),

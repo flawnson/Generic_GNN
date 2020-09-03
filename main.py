@@ -7,7 +7,6 @@
 
 # TODO: Use SciKitLearn's mechanisms to implement custom size splits
 # TODO: Implement tuning for model and layer sizes
-# TODO: Implement jsonschema validation for config files
 # TODO: Turn Tuning into Training wrapper (check if tuning pipeline still functional)
 # TODO: Implement optimizer/loss customization
 # TODO: Implement basic multi-GPU support
