@@ -10,11 +10,15 @@ from utils.logger import log
 
 class TestSplitMethods(unittest.TestCase):
     def setUp(self) -> None:
+        dataset: GenericDataset = None
+        if json_data["dataset"] == "primary_labelset":
+            dataset = PrimaryLabelset(json_data).dataset.to(device)
+        else:
+            raise NotImplementedError(f"{json_data['dataset']} is not a dataset")  # Add to logger when implemented
         pass
 
     def test_intersection(self):
-        self.assertEqual(Holdout().stratified_split(), 'FOO')
-        int(np.unique([sum(tup) for tup in list(zip(*split_method_output))]))
+        self.assertEqual(Holdout().split(), 'FOO')
 
     def test_balanced(self):
         self.assertTrue('FOO'.isupper())

@@ -1,14 +1,46 @@
 """ This module contains miscellaneous code that takes up too much space in the main pipeline, hence have been abstracted and
     moved here for organizational reasons """
 import numpy as np
+import json
 import torch
+import argparse
+import subprocess
 import os.path as osp
 import torch.nn.functional as F
 
+from typing import Tuple, Dict
+from utils.logger import set_file_logger, log
 from nn.DGL_models import GenericGNNModel
 from sklearn.metrics import roc_auc_score
 from collections.abc import Iterable
 from torch.utils.tensorboard import SummaryWriter
+
+
+def parse_arguments() -> Tuple[Dict, torch.device]:
+    path = osp.join('data', 'biogrid')
+    parser = argparse.ArgumentParser(description="Config file parser")
+    parser.add_argument("-c", "--config", help="json config file", type=str)
+    parser.add_argument("-d", "--device", help="device to use", type=bool)
+    args = parser.parse_args()
+
+    json_data: dict = json.load(open(args.config))
+    set_file_logger(json_data)
+    # DGL Overrides torch.tensor.to() and implements it's own to() method for its graph objects
+    device = torch.device("cuda" if json_data["cuda"] and torch.cuda.is_available() else "cpu")
+    log.info(f"Using {device} for compute")
+
+    # See https://discuss.pytorch.org/t/what-does-torch-backends-cudnn-benchmark-do/5936
+    # benchmark mode is good whenever your input sizes for your network do not vary
+    torch.backends.cudnn.benchmark = True if not args.device and torch.cuda.is_available() else False
+
+    git_hash = subprocess.check_output(["git", "describe", "--always"]).strip().decode()
+    git_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode()
+    log.info(f"Git hash: {git_hash}, branch: {git_branch}")
+
+    # Use if-else to check if requested dataset and model type (from config file) is available
+    log.info(f"Creating {json_data['dataset']} dataset")
+
+    return json_data, device
 
 
 def loss_weights(dataset, agg_mask: np.ndarray, device: torch.device) -> torch.tensor:
