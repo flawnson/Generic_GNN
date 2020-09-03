@@ -21,6 +21,10 @@
       "description": "Whether or not to use a cuda device",
       "type": "string"
     },
+    "validate": {
+      "description": "Whether or not to validate configuration file with this schema",
+      "type": "boolean"
+    },
     "data_config": {
       "type": "object",
       "properties": {

@@ -38,6 +38,9 @@ if __name__ == "__main__":
     else:
         raise NotImplementedError(f"{json_data['dataset']} is not a dataset")  # Add to logger when implemented
 
+    # Use if-else to check if requested dataset and model type (from config file) is available
+    log.info(f"Creating {json_data['dataset']} dataset")
+
     # You must use balanced split (auroc doesn't work otherwise)
     log.info("Creating splitsets")
     dataset.splits = Holdout(json_data, dataset).split()

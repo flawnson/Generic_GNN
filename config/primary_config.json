@@ -3,6 +3,7 @@
   "dataset": "primary_labelset",
   "logging": false,
   "cuda": false,
+  "validate": false,
   "data_config": {
                   "directory": ["data"],
                   "edgelist_file": "edgelist.csv",

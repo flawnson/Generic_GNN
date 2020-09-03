@@ -4,6 +4,7 @@ import numpy as np
 import json
 import torch
 import argparse
+import jsonschema
 import subprocess
 import os.path as osp
 import torch.nn.functional as F
@@ -20,10 +21,11 @@ def parse_arguments() -> Tuple[Dict, torch.device]:
     path = osp.join('data', 'biogrid')
     parser = argparse.ArgumentParser(description="Config file parser")
     parser.add_argument("-c", "--config", help="json config file", type=str)
-    parser.add_argument("-d", "--device", help="device to use", type=bool)
+    parser.add_argument("-s", "--scheme", help="json scheme file", type=str)
     args = parser.parse_args()
 
     json_data: dict = json.load(open(args.config))
+    json_scheme: dict = json.load(open(args.scheme))
     set_file_logger(json_data)
     # DGL Overrides torch.tensor.to() and implements it's own to() method for its graph objects
     device = torch.device("cuda" if json_data["cuda"] and torch.cuda.is_available() else "cpu")
@@ -37,10 +39,14 @@ def parse_arguments() -> Tuple[Dict, torch.device]:
     git_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode()
     log.info(f"Git hash: {git_hash}, branch: {git_branch}")
 
-    # Use if-else to check if requested dataset and model type (from config file) is available
-    log.info(f"Creating {json_data['dataset']} dataset")
+    if json_data["validate"]:
+        try:
+            jsonschema.validate(json_data, json_scheme)
+        except jsonschema.ValidationError:
+            log.warning("Tried to validate but failed, continuing anyway")
 
     return json_data, device
+
 
 
 def loss_weights(dataset, agg_mask: np.ndarray, device: torch.device) -> torch.tensor:
@@ -107,19 +113,3 @@ def load_model(config: dict, model: GenericGNNModel, device: torch.device) -> Ge
     else:
         return model.to(device)
 
-# split_indices = []
-# split_lens = []
-# leftover = None
-# for index_list in class_indices:
-#     indices = []
-#     for frac in frac_list:
-#         split_len: int = int(round(frac * len(index_list)))
-#         split_lens.append(split_len)
-#
-#     for split_len in split_lens:
-#         split_idx = np.random.choice(leftover, split_len, replace=False)
-#         leftover = np.setdiff1d(leftover, split_idx)
-#         indices += split_idx.tolist()
-#
-#     split_indices.append(indices)
-#
