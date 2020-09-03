@@ -6,30 +6,30 @@ import numpy as np
 from utils.holdout import Holdout
 from read.preprocessing import GenericDataset, PrimaryLabelset
 from utils.logger import log
+from utils.helper import parse_arguments
 
 
 class TestSplitMethods(unittest.TestCase):
     def setUp(self) -> None:
+        self.json_data, self.device = parse_arguments()
         dataset: GenericDataset = None
-        if json_data["dataset"] == "primary_labelset":
-            dataset = PrimaryLabelset(json_data).dataset.to(device)
+        if self.json_data["dataset"] == "primary_labelset":
+            self.dataset = PrimaryLabelset(self.json_data).dataset.to(self.device)
         else:
-            raise NotImplementedError(f"{json_data['dataset']} is not a dataset")  # Add to logger when implemented
-        pass
+            raise NotImplementedError(f"{self.json_data['dataset']} is not a dataset")  # Add to logger when implemented
+
+    def test_type(self):
+        self.assertEqual(type(Holdout(self.json_data, self.dataset).split()), dict)
 
     def test_intersection(self):
-        self.assertEqual(Holdout().split(), 'FOO')
+        self.assertEqual(np.unique(Holdout(self.json_data, self.dataset).split().values()), 1)
 
     def test_balanced(self):
         self.assertTrue('FOO'.isupper())
         self.assertFalse('Foo'.isupper())
 
-    def test_split(self):
-        s = 'hello world'
-        self.assertEqual(s.split(), ['hello', 'world'])
-        # check that s.split fails when the separator is not a string
-        with self.assertRaises(TypeError):
-            s.split(2)
+    def test_all(self):
+        pass
 
 
 if __name__ == '__main__':

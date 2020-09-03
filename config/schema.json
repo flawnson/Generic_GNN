@@ -82,7 +82,49 @@
     "train_config": {
       "description": "Configurations for training run",
       "type": "object",
-      "required": ["run_type", "dataset"]
+      "properties": {
+        "write_summary": {
+          "description": "Whether to write data and scores to tensorboard",
+          "type": "boolean"
+        },
+        "run_name": {
+          "description": "Name to give to the logging file when writing",
+          "type": "string"
+        },
+        "save_model": {
+          "description": "Name of the save file if string, else none",
+          "type": "string"
+        },
+        "load_model": {
+          "description": "Name of the file with the saved model to load if string, else none",
+          "type": "string"
+        },
+        "model_config": {
+          "description": "Configuration for defining model to run",
+          "type": "object"
+        },
+        "scores": {
+          "description": "Configuration for scoring the model",
+          "type": "object"
+        },
+        "weighted_loss": {
+          "description": "Whether or not to use weighted loss to compensate for class imbalance",
+          "type": "boolean"
+        },
+        "epochs": {
+          "description": "Number of epochs to run for",
+          "type": "integer"
+        },
+        "lr": {
+          "description": "The learning rate to use for training",
+          "type": "integer"
+        },
+        "wd": {
+          "description": "The weight decay to use for training",
+          "type": "integer"
+        }
+      },
+      "required": ["model_config", "scores"]
     },
     "tune_config": {
       "description": "Configurations for tuning run",

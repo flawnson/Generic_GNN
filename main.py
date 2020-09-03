@@ -8,7 +8,6 @@
 # TODO: Add sample datasets from public repositories as examples
 # TODO: Use SciKitLearn's mechanisms to implement custom size splits
 # TODO: Implement tuning for model and layer sizes
-# TODO: Implement model customization (currently only set to GAT)
 # TODO: Get screenshots of model training and rataset
 # TODO: Turn Tuning into Training wrapper (check if tuning pipeline still functional)
 # TODO: Implement optimizer/loss customization
@@ -42,11 +41,6 @@ if __name__ == "__main__":
     # You must use balanced split (auroc doesn't work otherwise)
     log.info("Creating splitsets")
     dataset.splits = Holdout(json_data, dataset).split()
-
-    # Use if-else to check if requested dataset and model type (from config file) is available
-    model: GenericGNNModel = None
-    if json_data == "GAT":
-        pass
 
     # Runtype pipelines
     log.info(f"Executing {json_data['run_type']} pipeline")

@@ -1,0 +1,23 @@
+{
+  "run_type": "demo",
+  "dataset": "primary_labelset",
+  "logging": false,
+  "cuda": false,
+  "data_config": {
+                  "directory": ["data"],
+                  "edgelist_file": "edgelist.csv",
+                  "node_features_file": "embeddings_086.json",
+                  "edge_features_file": null,
+                  "label_file": "quinary_labels.csv",
+                  "label_names": ["gene", "label"],
+                  "visualize": false,
+                  "semi-supervised": true,
+                  "dummy_features": false,
+                  "weight_classes": false,
+                  "shuffle": true,
+                  "split_type": "stratified",
+                  "splits": {"trainset": 0.7,
+                             "validset": 0.2,
+                             "newset": 0.2,
+                             "testset": 0.1}
+  }
