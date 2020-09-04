@@ -11,7 +11,7 @@ from utils.helper import auroc_score
 from read.preprocessing import GenericDataset
 
 
-class Scores:
+class Scores(object):
     def __init__(self, score_config: dict, dataset: GenericDataset, logits, split_mask: np.array, known_mask: np.array):
         self.score_config = score_config
         self.split_mask = split_mask

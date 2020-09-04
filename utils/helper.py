@@ -33,7 +33,7 @@ def parse_arguments() -> Tuple[Dict, torch.device]:
 
     # See https://discuss.pytorch.org/t/what-does-torch-backends-cudnn-benchmark-do/5936
     # benchmark mode is good whenever your input sizes for your network do not vary
-    torch.backends.cudnn.benchmark = True if not args.device and torch.cuda.is_available() else False
+    torch.backends.cudnn.benchmark = True if not json_data.get("cuda", False) and torch.cuda.is_available() else False
 
     git_hash = subprocess.check_output(["git", "describe", "--always"]).strip().decode()
     git_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode()

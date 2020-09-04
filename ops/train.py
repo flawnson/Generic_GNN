@@ -20,7 +20,7 @@ DEFAULT_SCORES = {"acc": None, "f1": ["macro"], "auc": ["macro", "ovo"]}
 WRITE_SUMMARY = False
 
 
-class Trainer:
+class Trainer(object):
     def __init__(self, config: dict, dataset: GenericDataset, device: torch.device):
         """ Class for training and testing loops
 

@@ -84,7 +84,7 @@ def tune_model(config: dict) -> None:
         early_stopper.early_stopping(train_acc, "loss", False)
 
 
-class Tuner:
+class Tuner(object):
     def __init__(self, config: dict, dataset: GenericDataset, device: torch.device) -> dict:
         """
         :param dataset: PyG data object
