@@ -43,10 +43,9 @@ def parse_arguments() -> Tuple[Dict, torch.device]:
         try:
             jsonschema.validate(json_data, json_scheme)
         except jsonschema.ValidationError:
-            log.warning("Tried to validate but failed, continuing anyway")
+            log.warning("Tried to validate but failed, continuing run anyway")
 
     return json_data, device
-
 
 
 def loss_weights(dataset, agg_mask: np.ndarray, device: torch.device) -> torch.tensor:

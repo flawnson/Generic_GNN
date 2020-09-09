@@ -10,6 +10,7 @@ from utils.helper import parse_arguments
 
 
 class TestSplitMethods(unittest.TestCase):
+    # TODO: Fix argparse error with: https://stackoverflow.com/questions/18160078/how-do-you-write-tests-for-the-argparse-portion-of-a-python-module
     def setUp(self) -> None:
         self.json_data, self.device = parse_arguments()
         dataset: GenericDataset = None
@@ -23,13 +24,6 @@ class TestSplitMethods(unittest.TestCase):
 
     def test_intersection(self):
         self.assertEqual(np.unique(Holdout(self.json_data, self.dataset).split().values()), 1)
-
-    def test_balanced(self):
-        self.assertTrue('FOO'.isupper())
-        self.assertFalse('Foo'.isupper())
-
-    def test_all(self):
-        pass
 
 
 if __name__ == '__main__':
