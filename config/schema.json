@@ -42,7 +42,7 @@
         },
         "edge_features_file": {
           "description": "The name of the edge features file",
-          "type": "string"
+          "type": ["string", "null"]
         },
         "label_file": {
           "description": "The name of the label file",
