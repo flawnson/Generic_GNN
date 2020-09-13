@@ -4,9 +4,11 @@
 import datetime
 import logging
 import errno
+import time
 import os
 
 import os.path as osp
+from functools import wraps
 
 log_format = '[%(levelname)-8s %(asctime)s %(filename)s:%(lineno)d] %(message)s '
 date_format = '%Y-%m-%d %I:%M:%S %p'
@@ -42,6 +44,21 @@ def set_file_logger(config: dict, name: str = '', filename: str = "run.log", lev
 def get_logger(name: str):
     logger = logging.getLogger(name)
     return logger
+
+
+# Callable function to time the execution time of a function when called
+def timed(func):
+    """This decorator prints the execution time for the decorated function."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        end = time.time()
+        get_logger(__name__).info("{} ran in {}s".format(func.__name__, round(end - start, 2)))
+        return result
+
+    return wrapper
 
 
 console = logging.StreamHandler()
