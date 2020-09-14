@@ -20,7 +20,7 @@ import torch
 from read.preprocessing import GenericDataset, PrimaryLabelset
 from utils.holdout import Holdout
 from utils.helper import parse_arguments
-from utils.logger import set_file_logger, log
+from utils.logger import set_file_logger, log, timed
 from ops.benchmark import Benchmarker
 from ops.train import Trainer
 from ops.tune import Tuner

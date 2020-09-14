@@ -7,6 +7,7 @@ from typing import Dict
 from dgl.data.utils import Subset
 from itertools import accumulate
 from sklearn.model_selection import KFold, StratifiedKFold
+from utils.logger import timed
 
 DEFAULT_SPLITS = {"trainset": 0.8, "validset": 0.1, "testset": 0.1}
 
@@ -102,6 +103,7 @@ class Holdout:
 
         return dict(zip(self.data_config["splits"].keys(), masks))
 
+    @timed
     def split(self) -> Dict[str, object]:
         if self.data_config["split_type"] == "naive":
             # Naive split sizes (does not compensate for class imbalance

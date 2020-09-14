@@ -10,8 +10,8 @@ import os
 import os.path as osp
 from functools import wraps
 
-log_format = '[%(levelname)-8s %(asctime)s %(filename)s:%(lineno)d] %(message)s '
-date_format = '%Y-%m-%d %I:%M:%S %p'
+log_format = '%(levelname)-8s %(asctime)s %(filename)s:%(lineno)d] %(message)s '
+date_format = '%Y-%m-%d %I%M%S %p'
 
 
 # Callable function to set logger for any module in the repo
@@ -21,7 +21,7 @@ def set_file_logger(config: dict, name: str = '', filename: str = "run.log", lev
         logging.basicConfig(format=log_format,
                             datefmt=date_format,
                             level=level)
-        time = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+        time = datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S")
         try:
             os.makedirs(osp.join(osp.dirname(__file__), f"../logs"))
         except OSError as e:

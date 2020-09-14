@@ -1,7 +1,7 @@
 {
   "run_type": "demo",
   "dataset": "primary_labelset",
-  "logging": false,
+  "logging": true,
   "cuda": false,
   "validate": false,
   "data_config": {
