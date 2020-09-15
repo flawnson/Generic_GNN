@@ -40,7 +40,7 @@ cd Generic_GNN && mkdir outputs
 
 Finally you can run a demo version of the pipeline (default configs in configs directory)
 ```shell
-python -c path/to/config/files/file.json -d bool_for_CUDA
+python -c path/to/config/files/file.json -s path/to/schema/files/file.json
 ```
 
 You can see the logged results using TensorBoard
