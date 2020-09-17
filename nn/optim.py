@@ -3,6 +3,7 @@ import torch
 import numpy as np
 
 from torch.optim.optimizer import Optimizer
+from utils.logger import log
 
 
 class _LRScheduler(object):
@@ -35,6 +36,36 @@ class CosineAnnealingWarmRestartsOptim:
     def get_lr(self):
         self.eq = self.min_lr + (self.max_lr - self.min_lr) / 2 * (1 + np.cos(np.array([self.since_epoch / self.cur_epoch * np.pi])))
 
+    def __call__(self, *args, **kwargs):
+        return torch.optim.lr_scheduler.CosineAnnealingWarmRestarts()
+
 
 class StepDecayOptim:
     pass
+
+
+class OptimizerObj():
+    def __init__(self, config, params):
+        self.optim_config = config["optim_config"]
+        self.params = params
+
+        if config["optim"].casefold() == "adam":
+            self.optim_obj = torch.optim.Adam(params, **self.optim_config["kwargs"])
+        elif config["optim"].casefold() == "sgd":
+            self.optim_obj = torch.optim.SGD(params, **self.optim_config["kwargs"])
+        elif config["optim"].casefold() == "adagrad":
+            self.optim_obj = torch.optim.Adagrad(params, **self.optim_config["kwargs"])
+        elif config["optim"].casefold() == "rmsprop":
+            self.optim_obj = torch.optim.RMSprop(params, **self.optim_config["kwargs"])
+        elif config["optim"].casefold() == "adadelta":
+            self.optim_obj = torch.optim.Adadelta(params, **self.optim_config["kwargs"])
+        else:
+            log.info(f"Optimizer {self.config['optim']} not understood")
+            raise NotImplementedError(f"Optimizer {self.config['optim']} not implemented")
+
+
+class LRScheduler():
+    def __init__(self, config, optim_obj):
+        self.optim_config = config["optim"]
+        if self.optim_config["name"].casefold() == "CAWR":
+            self.optimizer_obj = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optim_obj, **self.optim_config["scheduler_kwargs"])

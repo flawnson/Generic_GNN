@@ -6,7 +6,7 @@ import torch
 from typing import Dict
 from dgl.data.utils import Subset
 from itertools import accumulate
-from sklearn.model_selection import KFold, StratifiedKFold
+from sklearn.model_selection import KFold, StratifiedKFold, StratifiedShuffleSplit
 from utils.logger import timed
 
 DEFAULT_SPLITS = {"trainset": 0.8, "validset": 0.1, "testset": 0.1}
@@ -97,7 +97,8 @@ class Holdout:
     def stratified_split(self) -> dict:
         # See SciKitLearn's documentation for implementation details (note that this method enforces same size splits):
         # https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html#sklearn.model_selection.StratifiedKFold
-        split = StratifiedKFold(n_splits=len(self.data_config["splits"]), shuffle=self.data_config["shuffle"])
+        # split = StratifiedKFold(n_splits=len(self.data_config["splits"]), shuffle=self.data_config["shuffle"])
+        split = StratifiedShuffleSplit(n_splits=len(self.data_config["splits"]))
         # test = split.get_n_splits(self.dataset.ndata["x"], self.dataset.ndata["y"])
         masks = list(split._iter_test_masks(self.dataset.ndata["x"], self.dataset.ndata["y"]))
 

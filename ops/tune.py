@@ -53,15 +53,6 @@ def tune_model(config: dict) -> None:
         loss = F.cross_entropy(logits[agg_mask], dataset.ndata["y"][agg_mask], weight=weights)
         _loss = loss.clone().detach().to("cpu").item()
 
-        # if config.get("early_stopping_loss"):
-        #     if _loss > loss_state:
-        #         loss_no_improve += 1
-        #         loss_state = _loss
-        #
-        #     if loss_no_improve > config.get("loss_patience"):
-        #         print(f'Loss failed to decrease for {config["loss_patience"]} iter, early stopping current iter')
-        #         break
-
         loss.backward()
         optimizer.step()
 

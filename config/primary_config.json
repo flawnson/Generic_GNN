@@ -32,6 +32,13 @@
                                     "names": ["name1, name2, name3, name4"],
                                     "layer_sizes": [128, 68, 32]
                    },
+                   "optim_config": {
+                                    "optim": "adam",
+                                    "kwargs": {
+                                               "lr": 0.0005,
+                                               "wd": 5e-5
+                                    }
+                   },
                    "scores": {
                               "acc": null,
                               "f1": ["macro"],
@@ -42,9 +49,7 @@
                               "jac": ["macro"]
                    },
                    "weighted_loss": true,
-                   "epochs": 1000,
-                   "lr": 0.0005,
-                   "wd": 5e-5
+                   "epochs": 1000
   },
   "tune_config": {
                   "model_config": {
