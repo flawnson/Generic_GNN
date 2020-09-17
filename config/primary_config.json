@@ -34,9 +34,15 @@
                    },
                    "optim_config": {
                                     "optim": "adam",
-                                    "kwargs": {
-                                               "lr": 0.0005,
-                                               "wd": 5e-5
+                                    "optim_kwargs": {
+                                                     "lr": 0.0005,
+                                                     "wd": 5e-5
+                                    },
+                                    "scheduler_kwargs": {
+                                                        "scheduler": "CAWR",
+                                                        "T_0": 10,
+                                                        "eta_min": 0.000001,
+                                                        "verbose": true
                                     }
                    },
                    "scores": {

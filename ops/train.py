@@ -9,6 +9,7 @@ import torch
 import dgl
 
 from typing import Dict
+from nn.optim import OptimizerObj, LRScheduler
 from nn.DGL_models import GenericGNNModel, GNNModel
 from utils.helper import loss_weights, auroc_score, save_model, pretty_print, load_model
 from utils.scoring import Scores
@@ -38,7 +39,8 @@ class Trainer(object):
         self.device = device
         self.model = self.get_model()
         self.params = self.model.parameters()
-        self.optimizer = torch.optim.Adam(self.params, lr=self.train_config["lr"], weight_decay=self.train_config["wd"])
+        self.optimizer = OptimizerObj(self.train_config, self.params)
+        self.scheduler = LRScheduler(self.train_config, self.optimizer)
         self.writer = SummaryWriter("../logs" + self.train_config["run_name"])
 
     def train(self, epoch) -> torch.tensor:
@@ -50,6 +52,8 @@ class Trainer(object):
         loss = F.cross_entropy(logits[agg_mask], self.dataset.ndata["y"][agg_mask].long().to(self.device), weight=weights)
         loss.backward(retain_graph=True)
         self.optimizer.step()
+        if self.scheduler is not None:
+            self.scheduler.step()
         save_model(self.train_config, epoch, self.model)
 
         return loss

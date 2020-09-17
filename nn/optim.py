@@ -66,6 +66,12 @@ class OptimizerObj():
 
 class LRScheduler():
     def __init__(self, config, optim_obj):
-        self.optim_config = config["optim"]
-        if self.optim_config["name"].casefold() == "CAWR":
-            self.optimizer_obj = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optim_obj, **self.optim_config["scheduler_kwargs"])
+        self.optim_config = config["optim_config"]
+        if self.optim_config["scheduler"].casefold() == "cawr":
+            self.schedule_obj = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optim_obj, **self.optim_config["scheduler_kwargs"])
+        elif self.optim_config["scheduler"].casefold() == "multistep":
+            self.schedule_obj = torch.optim.lr_scheduler.MultiStepLR(optim_obj, **self.optim_config["scheduler_kwargs"])
+        elif self.optim_config["scheduler"].casefold() == "cyclic":
+            self.schedule_obj = torch.optim.lr_scheduler.CyclicLR(optim_obj, **self.optim_config["scheduler_kwargs"])
+        else:
+            self.schedule_obj = None
