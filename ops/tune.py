@@ -11,14 +11,16 @@ import tensorflow as tf  # Needed to prevent get_global_worker attribute error
 
 from sklearn.metrics import f1_score
 from utils.helper import auroc_score
+from utils.logger import log
 from utils.stopper import Stop
 from read.preprocessing import GenericDataset
+from nn.optim import OptimizerObj, LRScheduler
 
 try:
     import ray
     from ray import tune
 except ModuleNotFoundError:
-    print("Ray is not available, continuing run without benchmarking")
+    log.info("Ray is not available, continuing run without benchmarking")
 
 
 def tune_model(config: dict) -> None:
@@ -38,7 +40,7 @@ def tune_model(config: dict) -> None:
     else:
         raise NotImplementedError(f"{config.get('model_config')['model']} is not a model")  # Add to logger when implemented
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=config["lr"], weight_decay=config["wd"])
+    optimizer = OptimizerObj(config.get("optim_config"), model.parameters())
 
     early_stopper = Stop(config)  # Early stopping for loss and accuracy
 

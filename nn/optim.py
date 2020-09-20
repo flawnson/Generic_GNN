@@ -40,11 +40,7 @@ class CosineAnnealingWarmRestartsOptim:
         return torch.optim.lr_scheduler.CosineAnnealingWarmRestarts()
 
 
-class StepDecayOptim:
-    pass
-
-
-class OptimizerObj():
+class OptimizerObj(object):
     def __init__(self, config, params):
         self.optim_config = config["optim_config"]
         self.params = params
@@ -64,7 +60,7 @@ class OptimizerObj():
             raise NotImplementedError(f"Optimizer {self.config['optim']} not implemented")
 
 
-class LRScheduler():
+class LRScheduler(object):
     def __init__(self, config, optim_obj):
         self.optim_config = config["optim_config"]
         if self.optim_config["scheduler"].casefold() == "cawr":
@@ -75,3 +71,4 @@ class LRScheduler():
             self.schedule_obj = torch.optim.lr_scheduler.CyclicLR(optim_obj, **self.optim_config["scheduler_kwargs"])
         else:
             self.schedule_obj = None
+            log.info(f"Scheduler {self.config['scheduler']} not provided or not understood")
