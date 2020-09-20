@@ -40,7 +40,7 @@ def tune_model(config: dict) -> None:
     else:
         raise NotImplementedError(f"{config.get('model_config')['model']} is not a model")  # Add to logger when implemented
 
-    optimizer = OptimizerObj(config.get("optim_config"), model.parameters())
+    optimizer = OptimizerObj(config, model.parameters())
 
     early_stopper = Stop(config)  # Early stopping for loss and accuracy
 

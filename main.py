@@ -10,7 +10,6 @@
 # TODO: Implement tuning for model and layer sizes
 # TODO: Get screenshots of model training and dataset
 # TODO: Turn Tuning into Training wrapper (check if tuning pipeline still functional)
-# TODO: Implement optimizer/loss customization
 # TODO: Implement basic multi-GPU support
 # TODO: Implement basic unit testing for splits
 import os.path as osp
