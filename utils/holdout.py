@@ -104,6 +104,11 @@ class Holdout:
 
         return dict(zip(self.data_config["splits"].keys(), masks))
 
+    def _iter_test_masks(self, X, y=None, groups=None):
+        test_folds = self._make_test_folds(X, y)
+        for i in range(self.n_splits):
+            yield test_folds == i
+
     @timed
     def split(self) -> Dict[str, object]:
         if self.data_config["split_type"] == "naive":
