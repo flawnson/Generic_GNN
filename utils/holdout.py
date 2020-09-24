@@ -7,6 +7,9 @@ from typing import Dict
 from dgl.data.utils import Subset
 from itertools import accumulate
 from sklearn.model_selection import KFold, StratifiedKFold, StratifiedShuffleSplit
+from sklearn.utils.validation import column_or_1d
+from sklearn.utils import check_random_state
+from sklearn.utils.multiclass import type_of_target
 from utils.logger import timed
 
 DEFAULT_SPLITS = {"trainset": 0.8, "validset": 0.1, "testset": 0.1}
