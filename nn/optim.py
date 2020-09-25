@@ -40,9 +40,8 @@ class CosineAnnealingWarmRestartsOptim:
         return torch.optim.lr_scheduler.CosineAnnealingWarmRestarts()
 
 
-class OptimizerObj(Optimizer):
+class OptimizerObj():
     def __init__(self, config, params):
-        super(OptimizerObj).__init__(params, config)
         self.optim_config = config["optim_config"]
         self.params = params
 
