@@ -33,7 +33,6 @@ def parse_arguments() -> Tuple[Dict, torch.device]:
     args = parser.parse_args()
 
     json_data: dict = json.load(open(args.config))
-    json_scheme: dict = json.load(open(args.scheme))
     set_file_logger(json_data)
     # DGL Overrides torch.tensor.to() and implements it's own to() method for its graph objects
     device = torch.device("cuda" if json_data["cuda"] and torch.cuda.is_available() else "cpu")
@@ -49,6 +48,7 @@ def parse_arguments() -> Tuple[Dict, torch.device]:
 
     if json_data["validate"]:
         try:
+            json_scheme: dict = json.load(open(args.scheme))
             jsonschema.validate(json_data, json_scheme)
         except jsonschema.ValidationError:
             log.warning("Tried to validate but failed, continuing run anyway")
