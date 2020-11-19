@@ -38,7 +38,7 @@ def parse_arguments() -> Tuple[Dict, torch.device]:
     device = torch.device("cuda" if json_data["cuda"] and torch.cuda.is_available() else "cpu")
     log.info(f"Using {device} for compute")
 
-    # See https://discuss.pytorch.org/t/what-does-torch-backends-cudnn-benchmark-do/5936
+    # See htttps://discuss.pytorch.org/t/what-does-torch-backends-cudnn-benchmark-do/5936
     # benchmark mode is good whenever your input sizes for your network do not vary
     torch.backends.cudnn.benchmark = True if not json_data.get("cuda", False) and torch.cuda.is_available() else False
 

@@ -100,7 +100,7 @@ class Holdout:
         split = StratifiedKFold(n_splits=len(self.data_config["splits"]), shuffle=self.data_config["shuffle"])
         # split = StratifiedShuffleSplit(n_splits=len(self.data_config["splits"]))
         # masks = list(split._iter_test_masks(self.dataset.ndata["x"], self.dataset.ndata["y"]))
-        masks = list(self._iter_test_masks(self.dataset.ndata["x"], self.dataset.ndata["y"]))
+        masks = list(split._iter_test_masks(self.dataset.ndata["x"], self.dataset.ndata["y"]))
         # test = split.get_n_splits(self.dataset.ndata["x"], self.dataset.ndata["y"])
 
         return dict(zip(self.data_config["splits"].keys(), masks))

@@ -38,8 +38,8 @@ class Trainer(object):
         self.dataset = dataset
         self.device = device
         self.model = self.get_model()
-        self.params = self.model.parameters()
-        self.optimizer = OptimizerObj(self.train_config, self.params)
+        self.params = torch.nn.ParameterList(self.model.parameters())
+        self.optimizer = OptimizerObj(self.params, self.train_config).optim_obj
         self.scheduler = LRScheduler(self.train_config, self.optimizer)
         self.writer = SummaryWriter("../logs" + self.train_config["run_name"])
 
