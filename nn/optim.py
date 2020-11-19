@@ -188,7 +188,7 @@ class LRScheduler():
             elif self.optim_config["scheduler"].casefold() == "cyclic":
                 self.schedule_obj = torch.optim.lr_scheduler.CyclicLR(optim_obj, **self.optim_config["scheduler_kwargs"])
             else:
-                self.schedule_obj = optim_obj
+                self.schedule_obj = None
         except AttributeError:
             log.info(f"Scheduler {self.optim_config['scheduler']} not provided or not understood")
-            self.schedule_obj = optim_obj
+            self.schedule_obj = None

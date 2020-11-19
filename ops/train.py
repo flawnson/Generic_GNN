@@ -40,7 +40,7 @@ class Trainer(object):
         self.model = self.get_model()
         self.params = torch.nn.ParameterList(self.model.parameters())
         self.optimizer = OptimizerObj(self.params, self.train_config).optim_obj
-        self.scheduler = LRScheduler(self.train_config, self.optimizer)
+        self.scheduler = LRScheduler(self.train_config, self.optimizer).schedule_obj
         self.writer = SummaryWriter("../logs" + self.train_config["run_name"])
 
     def train(self, epoch) -> torch.tensor:
